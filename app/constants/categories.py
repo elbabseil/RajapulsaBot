@@ -1,0 +1,15 @@
+CATEGORY_MAP = {
+    "Pulsa Regular": "Pulsa",
+    "Paket Data": "Data",
+    "Voucher Game": "Games",
+    "Token PLN": "PLN",
+    "Tagihan": "Pascabayar",
+    "Voucher": "Voucher",
+    "Masa Aktif": "Masa Aktif",
+    "TV": "TV",
+    "Gas": "Gas",
+    "eSIM": "eSIM",
+    "Aktivasi Voucher": "Aktivasi Voucher",
+    "Aktivasi Perdana": "Aktivasi Perdana",
+    "Paket SMS & Telpon": "Paket SMS & Telpon",
+}
