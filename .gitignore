@@ -1,4 +1,13 @@
-.env
+﻿.env
+
 venv/
+
 __pycache__/
+
 *.pyc
+
+*.db
+storage/*.db
+*.sqlite3
+
+*.log
