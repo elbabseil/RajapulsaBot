@@ -23,7 +23,9 @@ OPERATORS = [
 # =====================================================
 
 @router.message(F.text == "Pulsa Regular")
-async def menu_pulsa(message: types.Message):
+async def menu_pulsa(
+    message: types.Message
+):
 
     products = get_products()
 
@@ -49,13 +51,13 @@ async def menu_pulsa(message: types.Message):
             brands.add(brand)
 
 
-
     if not brands:
+
         await message.answer(
             "❌ Produk pulsa tidak tersedia."
         )
-        return
 
+        return
 
 
     keyboard = InlineKeyboardBuilder()
@@ -70,7 +72,6 @@ async def menu_pulsa(message: types.Message):
 
 
     keyboard.adjust(2)
-
 
 
     await message.answer(
@@ -107,20 +108,18 @@ async def pulsa_product(
 
 
         p_brand = str(
-            p.get("brand","")
+            p.get("brand", "")
         ).upper()
 
 
         category = str(
-            p.get("category","")
+            p.get("category", "")
         ).upper()
-
 
 
         if (
             p_brand == brand
-            and
-            category == "PULSA"
+            and category == "PULSA"
         ):
 
 
@@ -132,10 +131,11 @@ async def pulsa_product(
                 ),
 
                 callback_data=(
-                    f"buyprod:"
+                    f"product:"
                     f"{p.get('buyer_sku_code')}"
                 )
             )
+
 
             total += 1
 
@@ -147,11 +147,14 @@ async def pulsa_product(
 
     if total == 0:
 
+
         await callback.message.edit_text(
             "❌ Pulsa operator ini kosong."
         )
 
+
     else:
+
 
         await callback.message.edit_text(
 
@@ -160,8 +163,8 @@ async def pulsa_product(
 
             reply_markup=
             keyboard.as_markup()
-        )
 
+        )
 
 
     await callback.answer()
@@ -198,7 +201,6 @@ async def menu_data(
         ).upper()
 
 
-
         name = str(
             p.get("product_name","")
         ).lower()
@@ -206,12 +208,15 @@ async def menu_data(
 
 
         if (
+
             category in [
                 "DATA",
                 "INTERNET",
                 "PAKET DATA"
             ]
+
             or
+
             any(
                 x in name
                 for x in [
@@ -220,7 +225,9 @@ async def menu_data(
                     "paket"
                 ]
             )
+
         ):
+
 
             if brand in OPERATORS:
 
@@ -321,7 +328,7 @@ async def data_product(
 
                     callback_data=(
 
-                        f"buyprod:"
+                        f"product:"
                         f"{p.get('buyer_sku_code')}"
 
                     )
@@ -357,7 +364,6 @@ async def data_product(
             keyboard.as_markup()
 
         )
-
 
 
     await callback.answer()

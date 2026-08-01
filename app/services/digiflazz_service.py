@@ -501,6 +501,101 @@ class DigiFlazzService:
 
 
 
+    # ==================================
+    # CEK STATUS TRANSAKSI DIGIFLAZZ
+    # ==================================
+
+    def check_transaction_status(
+
+        self,
+
+        customer_no,
+
+        buyer_sku_code,
+
+        ref_id
+
+    ):
+
+
+        payload = {
+
+
+            "commands":
+            "check",
+
+
+            "username":
+            self.username,
+
+
+            "buyer_sku_code":
+            buyer_sku_code,
+
+
+            "customer_no":
+            str(customer_no),
+
+
+            "ref_id":
+            ref_id,
+
+
+            "sign":
+            self._create_sign(ref_id)
+
+        }
+
+
+
+        return self._post(
+
+            "transaction",
+
+            payload
+
+        )
+
+
+
+    # ==================================
+    # CEK SALDO
+    # ==================================
+
+    def check_balance(self):
+
+
+        payload = {
+
+
+            "cmd":
+            "deposit",
+
+
+            "username":
+            self.username,
+
+
+            "sign":
+            self._create_sign(
+
+                "depo"
+
+            )
+
+        }
+
+
+
+        return self._post(
+
+            "cek-saldo",
+
+            payload
+
+        )
+
+
 
 
 

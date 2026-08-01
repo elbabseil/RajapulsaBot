@@ -1,19 +1,28 @@
 from aiogram import Router, types, F
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-import uuid
+from aiogram.fsm.context import FSMContext
+
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 import json
 
 
 from app.states.payment import PaymentState
 
+
 from app.services.product_service import get_products
 from app.services.xendit_service import xendit
 from app.services.digiflazz_service import digiflazz
+from app.services.order_service import order_service
+
 
 from app.database.transaction_repository import (
     transaction_repository
+)
+
+
+from app.database.order_repository import (
+    order_repository
 )
 
 
@@ -26,9 +35,8 @@ router = Router()
 # PILIH PRODUK
 # ==========================================
 
-
 @router.callback_query(
-    F.data.startswith("buyprod_")
+    F.data.startswith("product:")
 )
 async def buy_product(
 
@@ -39,15 +47,48 @@ async def buy_product(
 ):
 
 
-    data = callback.data.replace(
-        "buyprod_",
+    sku = callback.data.replace(
+        "product:",
         ""
     )
 
 
-    sku, price = data.rsplit(
-        "_",
-        1
+    products = get_products()
+
+    product = None
+
+
+    for p in products:
+
+        if p.get("buyer_sku_code") == sku:
+
+            product = p
+
+            break
+
+
+
+    if not product:
+
+        await callback.answer(
+
+            "Produk tidak ditemukan",
+
+            show_alert=True
+
+        )
+
+        return
+
+
+
+    price = int(
+
+        product.get(
+            "price",
+            0
+        )
+
     )
 
 
@@ -55,15 +96,16 @@ async def buy_product(
 
         sku=sku,
 
-        price=int(price)
+        price=price
 
     )
 
 
     await state.set_state(
-        PaymentState.waiting_target
-    )
 
+        PaymentState.waiting_target
+
+    )
 
 
     await callback.message.answer(
@@ -84,13 +126,15 @@ ID pelanggan PLN
     await callback.answer()
 
 
+    await callback.answer()
+
+
 
 
 
 # ==========================================
 # INPUT TARGET
 # ==========================================
-
 
 @router.message(
     PaymentState.waiting_target
@@ -99,7 +143,7 @@ async def process_target(
 
     message: types.Message,
 
-    state:FSMContext
+    state: FSMContext
 
 ):
 
@@ -108,9 +152,31 @@ async def process_target(
 
 
 
-    sku = data["sku"]
+    sku = data.get(
+        "sku"
+    )
 
-    price = data["price"]
+
+    price = data.get(
+        "price"
+    )
+
+
+
+    if not sku or not price:
+
+
+        await message.answer(
+
+            "❌ Data produk tidak ditemukan."
+
+        )
+
+
+        await state.clear()
+
+        return
+
 
 
 
@@ -118,24 +184,51 @@ async def process_target(
 
 
 
-    trx_id = (
+    # =========================
+    # CREATE ORDER RAJAPULSA
+    # =========================
 
-        "TRX"
+    order = order_service.create_order(
 
-        +
+        customer_no=target,
 
-        uuid.uuid4()
+        buyer_sku_code=sku,
 
-        .hex[:10]
-
-        .upper()
+        telegram_id=message.from_user.id
 
     )
 
 
 
-    products = get_products()
+    if order.get("status") == "FAILED":
 
+
+        await message.answer(
+
+            "❌ Gagal membuat order\n\n"
+            +
+            order.get("message")
+
+        )
+
+
+        await state.clear()
+
+        return
+
+
+
+
+    ref_id = order["ref_id"]
+
+
+
+
+    # =========================
+    # AMBIL PRODUK
+    # =========================
+
+    products = get_products()
 
 
     product_name = "Produk Digital"
@@ -144,9 +237,11 @@ async def process_target(
 
     for p in products:
 
+
         if p.get(
             "buyer_sku_code"
         ) == sku:
+
 
             product_name = p.get(
                 "product_name"
@@ -158,12 +253,14 @@ async def process_target(
 
 
 
+    # =========================
     # SIMPAN TRANSAKSI
+    # =========================
 
 
     transaction_repository.create(
 
-        trx_id,
+        ref_id,
 
         message.chat.id,
 
@@ -190,21 +287,27 @@ async def process_target(
 
 
 
-    # CREATE QRIS XENDIT
 
+    # =========================
+    # CREATE QRIS
+    # =========================
 
     qris = xendit.create_qris(
 
-        trx_id,
+        ref_id,
 
         price
 
     )
 
 
+    print("==============================")
+    print("[DEBUG QRIS DATA]")
+    print(qris)
+    print("==============================")
+
 
     if not qris:
-
 
         await message.answer(
 
@@ -212,30 +315,50 @@ async def process_target(
 
         )
 
+        await state.clear()
+
         return
 
 
 
 
+    # =========================
+    # QR STRING
+    # =========================
 
     qr_string = (
 
-        qris.get(
-
-            "qr_string"
-
-        )
+        qris.get("qr_string")
 
         or
 
-        qris.get(
+        qris.get("qr_code")
 
-            "qr_code"
+        or
 
-        )
+        qris.get("qr")
 
     )
 
+
+    if not qr_string:
+
+        await message.answer(
+
+            "❌ QRIS tidak tersedia"
+
+        )
+
+        await state.clear()
+
+        return
+
+
+
+
+    # =========================
+    # SIMPAN QRIS
+    # =========================
 
 
     qris_id = qris.get(
@@ -243,10 +366,15 @@ async def process_target(
     )
 
 
+    print(
+        "[DEBUG QR ID]",
+        qris_id
+    )
+
 
     transaction_repository.save_qris(
 
-        trx_id,
+        ref_id,
 
         qris_id,
 
@@ -255,23 +383,34 @@ async def process_target(
     )
 
 
+    order_repository.update_qr_id(
 
+        ref_id,
 
+        qris_id
+
+    )
+    # =========================
+    # BUTTON CEK
+    # =========================
 
     builder = InlineKeyboardBuilder()
+
 
 
     builder.button(
 
         text="🔄 Cek Pembayaran",
 
-        callback_data=f"check_{trx_id}_{sku}"
+        callback_data=f"check_{ref_id}_{sku}"
 
     )
 
 
 
     builder.adjust(1)
+
+
 
 
 
@@ -284,6 +423,7 @@ async def process_target(
         qr_string
 
     )
+
 
 
 
@@ -302,10 +442,10 @@ async def process_target(
 
 💰 Rp {price:,}
 
-🆔 {trx_id}
+🆔 {ref_id}
 
 
-Silahkan bayar QRIS.
+Silakan bayar QRIS.
 
         """,
 
@@ -330,28 +470,36 @@ Silahkan bayar QRIS.
 
 
 @router.callback_query(
+
     F.data.startswith("check_")
+
 )
 async def check_payment(
 
-    callback:types.CallbackQuery
+    callback: types.CallbackQuery
 
 ):
 
 
     data = callback.data.replace(
+
         "check_",
+
         ""
+
     )
 
 
-    trx_id, sku = data.split("_")
+
+    ref_id, sku = data.split("_")
+
+
 
 
 
     trx = transaction_repository.get_by_trx_id(
 
-        trx_id
+        ref_id
 
     )
 
@@ -359,9 +507,13 @@ async def check_payment(
 
     if not trx:
 
+
         await callback.answer(
+
             "Transaksi tidak ditemukan",
+
             show_alert=True
+
         )
 
         return
@@ -394,6 +546,7 @@ async def check_payment(
 
 
 
+
     payment_status = str(
 
         status.get(
@@ -413,13 +566,10 @@ async def check_payment(
     if payment_status not in [
 
         "COMPLETED",
-
         "PAID",
-
         "SUCCESS"
 
     ]:
-
 
         await callback.answer(
 
@@ -433,80 +583,26 @@ async def check_payment(
 
 
 
+    # =========================
+    # UPDATE PAYMENT STATUS ORDER
+    # =========================
 
+    order_repository.update_payment_status(
 
-    transaction_repository.update_status(
+        ref_id,
 
-        trx_id,
-
-        payment_status="PAID",
-
-        transaction_status="PROCESSING"
+        "PAID"
 
     )
-
 
 
 
     await callback.message.answer(
 
-        "✅ Pembayaran diterima.\nMengirim ke DigiFlazz..."
+        "✅ Pembayaran diterima.\n"
+        "⏳ Transaksi sedang diproses oleh sistem..."
 
     )
-
-
-
-
-
-    result = digiflazz.prepaid_transaction(
-
-        trx["customer_no"],
-
-        sku,
-
-        trx_id
-
-    )
-
-
-
-
-
-    if result:
-
-
-        transaction_repository.mark_success(
-
-            trx_id,
-
-            json.dumps(result)
-
-        )
-
-
-        await callback.message.answer(
-
-            "🎉 Transaksi berhasil diproses."
-
-        )
-
-
-    else:
-
-
-        transaction_repository.mark_failed(
-
-            trx_id
-
-        )
-
-
-        await callback.message.answer(
-
-            "❌ Transaksi gagal."
-
-        )
-
 
 
     await callback.answer()
