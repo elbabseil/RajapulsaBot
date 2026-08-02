@@ -1,83 +1,155 @@
 from fastapi import FastAPI
-
-from api.routes.product_routes import router as product_router
-from api.routes.user_routes import router as user_router
-from api.routes.transaction_routes import router as transaction_router
-from api.controllers.payment_controller import router as payment_router
+from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+from starlette.middleware.sessions import SessionMiddleware
 
 
-# Database
+# =====================================
+# DATABASE
+# =====================================
+
 from app.database.product_repository import product_repository
 from app.database.user_repository import user_repository
 from app.database.transaction_repository import transaction_repository
 
 
 
+# =====================================
+# API ROUTERS
+# =====================================
+
+from api.routes.product_routes import router as product_router
+from api.routes.user_routes import router as user_router
+from api.routes.transaction_routes import router as transaction_router
+from api.controllers.payment_controller import router as payment_router
+from api.controllers.auth_controller import router as auth_router
+
+
+
+# =====================================
+# ADMIN ROUTERS
+# =====================================
+
+from app.web.routes_login import router as login_router
+from app.web.routes import router as admin_router
+from app.web.routes_products import router as product_admin_router
+from app.web.routes_transactions import router as transaction_admin_router
+from app.web.routes_users import router as user_admin_router
+
+
+
+# =====================================
+# LIFESPAN
+# =====================================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    print("==============================")
+    print(" FLASH PAY RAJAPULSA START ")
+    print("==============================")
+
+
+    product_repository.create_table()
+    user_repository.create_table()
+    transaction_repository.create_table()
+
+
+    print("[DATABASE] OK")
+
+
+    yield
+
+
+    print("==============================")
+    print(" FLASH PAY STOP ")
+    print("==============================")
+
+
+
+# =====================================
+# CREATE APP
+# =====================================
+
 app = FastAPI(
 
-    title="RajaPulsa API",
+    title="FlashPay RajaPulsa",
 
-    description="""
-    RajaPulsa Backend System
+    version="1.0.0",
 
-    Features:
-    - DigiFlazz PPOB
-    - Xendit QRIS Payment
-    - Telegram Bot Integration
-    - User Balance Management
-    """,
+    lifespan=lifespan
 
-    version="1.0.0"
+)
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(
+    request: Request,
+    exc: Exception
+):
+
+    print("==============================")
+    print("GLOBAL ERROR")
+    print(type(exc))
+    print(exc)
+    print("==============================")
+
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": str(exc),
+            "type": str(type(exc))
+        }
+    )
+
+# =====================================
+# SESSION ADMIN
+# =====================================
+
+app.add_middleware(
+
+    SessionMiddleware,
+
+    secret_key="flashpay-raja-pulsa-secret-2026"
 
 )
 
 
 
-# =================================
-# STARTUP
-# =================================
+# =====================================
+# STATIC FILE
+# =====================================
 
-@app.on_event("startup")
-def startup_event():
+app.mount(
 
-    print("==============================")
-    print(" RAJAPULSA SYSTEM STARTING ")
-    print("==============================")
+    "/static",
 
+    StaticFiles(
+        directory="app/web/static"
+    ),
 
-    try:
+    name="static"
 
-        product_repository.create_table()
-
-        user_repository.create_table()
-
-        transaction_repository.create_table()
-
-
-        print("[DATABASE] OK")
-
-
-    except Exception as e:
-
-        print("[DATABASE ERROR]")
-        print(e)
+)
 
 
 
-# =================================
-# ROOT
-# =================================
+# =====================================
+# BASIC ROUTES
+# =====================================
 
 @app.get("/")
 def root():
 
     return {
 
-        "status": "online",
+        "service": "FlashPay RajaPulsa",
 
-        "service": "RajaPulsa API",
-
-        "version": "1.0.0"
+        "status": "online"
 
     }
 
@@ -88,41 +160,117 @@ def health():
 
     return {
 
-        "status": "healthy",
-
-        "service": "RajaPulsa"
+        "status": "healthy"
 
     }
 
 
 
-# =================================
-# ROUTES
-# =================================
+# =====================================
+# REGISTER API ROUTES
+# =====================================
+
+API_ROUTERS = [
+
+    product_router,
+    user_router,
+    transaction_router,
+    payment_router,
+    auth_router
+
+]
 
 
-# Product
-app.include_router(
-    product_router
-)
+print("==============================")
+print(" REGISTER API ROUTES ")
+print("==============================")
+
+
+for router in API_ROUTERS:
+
+    print(
+        "API:",
+        [
+            route.path
+            for route in router.routes
+        ]
+    )
+
+    app.include_router(router)
 
 
 
-# User
-app.include_router(
-    user_router
-)
+# =====================================
+# REGISTER ADMIN ROUTES
+# =====================================
+
+ADMIN_ROUTERS = [
+
+    login_router,
+    admin_router,
+    product_admin_router,
+    transaction_admin_router,
+    user_admin_router
+
+]
+
+
+print("==============================")
+print(" REGISTER ADMIN ROUTES ")
+print("==============================")
+
+
+for router in ADMIN_ROUTERS:
+
+    print(
+        "ADMIN:",
+        [
+            route.path
+            for route in router.routes
+        ]
+    )
+
+    app.include_router(router)
 
 
 
-# Transaction DigiFlazz
-app.include_router(
-    transaction_router
-)
+# =====================================
+# ROUTE CHECK
+# =====================================
+
+print("==============================")
+print(" REGISTERED ROUTES ")
+print("==============================")
 
 
+for route in app.routes:
 
-# Payment Xendit QRIS
-app.include_router(
-    payment_router
-)
+    # normal route
+    if hasattr(route, "path"):
+
+        print(
+            route.path,
+            getattr(route, "methods", None)
+        )
+
+
+    # included router
+    elif hasattr(route, "original_router"):
+
+        print(
+            "INCLUDED ROUTER"
+        )
+
+        for subroute in route.original_router.routes:
+
+            print(
+                subroute.path,
+                getattr(
+                    subroute,
+                    "methods",
+                    None
+                )
+            )
+
+
+print("==============================")

@@ -1,0 +1,455 @@
+*{
+
+    box-sizing:border-box;
+
+    font-family:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+}
+
+
+
+body{
+
+    margin:0;
+
+    background:#f4f7fb;
+
+    color:#1f2937;
+
+}
+
+
+
+
+
+.admin-wrapper{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+
+
+
+
+
+/* SIDEBAR */
+
+
+.sidebar{
+
+    width:260px;
+
+    background:#111827;
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    padding:25px 0;
+
+}
+
+
+
+.logo{
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    padding:0 25px 30px;
+
+}
+
+
+
+.logo span{
+
+    display:block;
+
+    font-size:14px;
+
+    color:#9ca3af;
+
+    margin-top:5px;
+
+}
+
+
+
+
+
+
+.sidebar nav a{
+
+    display:block;
+
+    padding:14px 25px;
+
+    color:#d1d5db;
+
+    text-decoration:none;
+
+    transition:.2s;
+
+}
+
+
+
+.sidebar nav a:hover{
+
+    background:#1f2937;
+
+    color:white;
+
+}
+
+
+
+
+
+.sidebar-footer{
+
+    margin-top:auto;
+
+    padding:20px 25px;
+
+    font-size:13px;
+
+    color:#9ca3af;
+
+}
+
+
+
+
+
+
+/* MAIN */
+
+
+.main-content{
+
+    flex:1;
+
+}
+
+
+
+
+
+
+.topbar{
+
+    height:70px;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 30px;
+
+    border-bottom:1px solid #e5e7eb;
+
+}
+
+
+
+.topbar h2{
+
+    margin:0;
+
+}
+
+
+
+
+
+.profile{
+
+    background:#f3f4f6;
+
+    padding:10px 15px;
+
+    border-radius:10px;
+
+}
+
+
+
+
+
+
+.content{
+
+    padding:30px;
+
+}
+
+
+
+
+
+/* DASHBOARD CARD */
+
+
+
+.container{
+
+    max-width:1200px;
+
+}
+
+
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+}
+
+
+
+.card{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:
+    0 5px 20px rgba(0,0,0,.05);
+
+}
+
+
+
+.card h3{
+
+    margin-top:0;
+
+    color:#6b7280;
+
+}
+
+
+
+.card p{
+
+    font-size:32px;
+
+    font-weight:bold;
+
+    margin-bottom:0;
+
+}
+
+
+
+
+
+
+/* TABLE */
+
+
+table{
+
+    width:100%;
+
+    background:white;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+}
+
+
+
+th{
+
+    background:#111827;
+
+    color:white;
+
+    padding:15px;
+
+    text-align:left;
+
+}
+
+
+
+td{
+
+    padding:14px;
+
+    border-bottom:1px solid #eee;
+
+}
+
+
+
+
+
+tr:hover{
+
+    background:#f9fafb;
+
+}
+.dashboard-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+
+
+.dashboard-card span{
+
+    color:#6b7280;
+
+    font-size:14px;
+
+}
+
+
+
+.dashboard-card.blue{
+
+    border-left:6px solid #2563eb;
+
+}
+
+
+
+.dashboard-card.purple{
+
+    border-left:6px solid #9333ea;
+
+}
+
+
+
+.dashboard-card.orange{
+
+    border-left:6px solid #ea580c;
+
+}
+
+
+
+.dashboard-card.yellow{
+
+    border-left:6px solid #eab308;
+
+}
+
+
+
+.dashboard-card.green{
+
+    border-left:6px solid #16a34a;
+
+}
+
+
+
+.dashboard-card.red{
+
+    border-left:6px solid #dc2626;
+
+}
+
+
+
+.dashboard-card.dark{
+
+    border-left:6px solid #111827;
+
+}
+
+
+
+
+.badge{
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+}
+
+
+
+.badge.pending{
+
+    background:#fef3c7;
+
+    color:#92400e;
+
+}
+
+
+
+.badge.success{
+
+    background:#dcfce7;
+
+    color:#166534;
+
+}
+
+
+
+.badge.failed{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+}
+
+
+
+.chart-box{
+
+    height:350px;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    margin-bottom:30px;
+
+}

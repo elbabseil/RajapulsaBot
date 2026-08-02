@@ -48,7 +48,6 @@ class PaymentWorker:
 
 
 
-
     # ============================
     # LOOP
     # ============================
@@ -76,9 +75,8 @@ class PaymentWorker:
 
 
 
-
     # ============================
-    # PROCESS QUEUE
+    # PROCESS PAYMENT
     # ============================
 
     def process_payment(self):
@@ -98,15 +96,12 @@ class PaymentWorker:
             trx_id = trx["trx_id"]
 
 
-
             print(
-                "[WORKER]",
+                "[WORKER PROCESS]",
                 trx_id
             )
 
 
-
-            # LOCK TRANSACTION
 
             transaction_repository.update_status(
 
@@ -124,35 +119,98 @@ class PaymentWorker:
 
 
 
+
     # ============================
-    # DIGIFLAZZ
+    # SEND DIGIFLAZZ
     # ============================
 
-    def send_digiflazz(self,trx):
+    def send_digiflazz(
+        self,
+        trx
+    ):
 
 
         try:
 
 
-            response = digiflazz.prepaid_transaction(
+            product_type = str(
 
-                customer_no=
-                trx["customer_no"],
+                trx.get(
 
+                    "product_type",
 
-                buyer_sku_code=
-                trx["product_code"],
+                    ""
 
+                )
 
-                ref_id=
-                trx["trx_id"]
-
-            )
+            ).upper()
 
 
 
             print(
-                "[DIGIFLAZZ]",
+                "[PRODUCT TYPE]",
+                product_type
+            )
+
+
+
+            # ======================
+            # PASCABAYAR
+            # ======================
+
+            if product_type == "PASCABAYAR":
+
+
+                response = digiflazz.pasca_transaction(
+
+                    customer_no=
+
+                    trx["customer_no"],
+
+
+                    buyer_sku_code=
+
+                    trx["product_code"],
+
+
+                    ref_id=
+
+                    trx["trx_id"]
+
+                )
+
+
+
+            # ======================
+            # PREPAID
+            # ======================
+
+            else:
+
+
+                response = digiflazz.prepaid_transaction(
+
+                    customer_no=
+
+                    trx["customer_no"],
+
+
+                    buyer_sku_code=
+
+                    trx["product_code"],
+
+
+                    ref_id=
+
+                    trx["trx_id"]
+
+                )
+
+
+
+
+            print(
+                "[DIGIFLAZZ RESPONSE]",
                 response
             )
 
@@ -170,6 +228,7 @@ class PaymentWorker:
                 )
 
                 return
+
 
 
 
@@ -199,6 +258,11 @@ class PaymentWorker:
 
 
 
+
+            # ======================
+            # SUCCESS
+            # ======================
+
             if status in [
 
                 "SUCCESS",
@@ -210,10 +274,14 @@ class PaymentWorker:
 
                 transaction_repository.update_status(
 
-                    trx_id=trx["trx_id"],
+                    trx_id=
+
+                    trx["trx_id"],
 
 
-                    transaction_status="SUCCESS",
+                    transaction_status=
+
+                    "SUCCESS",
 
 
                     response=str(response)
@@ -221,10 +289,9 @@ class PaymentWorker:
                 )
 
 
-
                 print(
 
-                    "[TRANSACTION SUCCESS]",
+                    "[SUCCESS]",
 
                     trx["trx_id"]
 
@@ -232,27 +299,39 @@ class PaymentWorker:
 
 
 
-                # NANTI TAMBAHKAN
-                # KIRIM STRUK TELEGRAM
 
 
 
+            # ======================
+            # PENDING
+            # ======================
 
-
-            elif status=="PENDING":
+            elif status == "PENDING":
 
 
                 transaction_repository.update_status(
 
-                    trx_id=trx["trx_id"],
+                    trx_id=
 
-                    transaction_status="PENDING",
+                    trx["trx_id"],
+
+
+                    transaction_status=
+
+                    "PENDING",
+
 
                     response=str(response)
 
                 )
 
 
+
+
+
+            # ======================
+            # FAILED
+            # ======================
 
             else:
 
@@ -286,7 +365,7 @@ class PaymentWorker:
 
 
     # ============================
-    # FAILED HANDLER
+    # FAILED
     # ============================
 
     def failed(
@@ -302,14 +381,21 @@ class PaymentWorker:
 
         transaction_repository.update_status(
 
-            trx_id=trx["trx_id"],
+            trx_id=
 
-            transaction_status="FAILED",
+            trx["trx_id"],
 
-            response=message
+
+            transaction_status=
+
+            "FAILED",
+
+
+            response=
+
+            message
 
         )
-
 
 
         print(
@@ -321,7 +407,6 @@ class PaymentWorker:
             message
 
         )
-
 
 
 

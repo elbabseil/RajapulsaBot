@@ -5,7 +5,6 @@ import logging
 import config
 
 
-
 BASE_URL = "https://api.digiflazz.com/v1"
 
 
@@ -20,32 +19,29 @@ class DigiFlazzService:
 
 
 
+
     # ==================================
     # CREATE SIGN
     # ==================================
 
-    def _create_sign(self, ref_id):
+    def _create_sign(
+        self,
+        ref_id
+    ):
 
-
-        sign_string = (
+        raw = (
 
             self.username.strip()
-
             +
-
             self.api_key.strip()
-
             +
-
             str(ref_id).strip()
 
         )
 
 
         return hashlib.md5(
-
-            sign_string.encode("utf-8")
-
+            raw.encode("utf-8")
         ).hexdigest()
 
 
@@ -53,13 +49,31 @@ class DigiFlazzService:
 
 
     # ==================================
-    # REQUEST HELPER
+    # REQUEST DIGIFLAZZ
     # ==================================
 
-    def _post(self, endpoint, payload):
+    def _post(
+        self,
+        endpoint,
+        payload
+    ):
 
 
         try:
+
+
+            print("==============================")
+            print("DIGIFLAZZ URL")
+            print(
+                f"{BASE_URL}/{endpoint}"
+            )
+
+
+            print("DIGIFLAZZ PAYLOAD")
+            print(payload)
+
+            print("==============================")
+
 
 
             response = requests.post(
@@ -73,24 +87,37 @@ class DigiFlazzService:
             )
 
 
-            print("==============================")
-            print("[DIGIFLAZZ REQUEST]")
-            print(payload)
-            print("==============================")
 
+            print("==============================")
+            print("HTTP STATUS")
+            print(response.status_code)
 
+            print("DIGIFLAZZ RESPONSE")
             print(response.text)
 
-
-
-            if response.status_code != 200:
-
-
-                return None
+            print("==============================")
 
 
 
-            return response.json()
+
+            try:
+
+                return response.json()
+
+
+
+            except Exception:
+
+
+                return {
+
+                    "error": response.text,
+
+                    "status_code": response.status_code
+
+                }
+
+
 
 
 
@@ -98,13 +125,21 @@ class DigiFlazzService:
 
 
             logging.error(
-
                 f"DIGIFLAZZ ERROR : {e}"
-
             )
 
 
-            return None
+            print("==============================")
+            print("REQUEST ERROR")
+            print(e)
+            print("==============================")
+
+
+            return {
+
+                "error": str(e)
+
+            }
 
 
 
@@ -120,7 +155,6 @@ class DigiFlazzService:
 
         payload = {
 
-
             "cmd":
             "prepaid",
 
@@ -134,7 +168,6 @@ class DigiFlazzService:
                 "pricelist"
             )
 
-
         }
 
 
@@ -146,6 +179,7 @@ class DigiFlazzService:
             payload
 
         )
+
 
 
         if result:
@@ -187,9 +221,10 @@ class DigiFlazzService:
 
             "sign":
             self._create_sign(
-                "pricelist"
-            )
 
+                "pricelist"
+
+            )
 
         }
 
@@ -202,6 +237,7 @@ class DigiFlazzService:
             payload
 
         )
+
 
 
         if result:
@@ -223,23 +259,16 @@ class DigiFlazzService:
 
 
 
-
     # ==================================
     # TRANSAKSI PREPAID
     # ==================================
 
     def prepaid_transaction(
-
         self,
-
         customer_no,
-
         buyer_sku_code,
-
         ref_id
-
     ):
-
 
 
         payload = {
@@ -262,7 +291,9 @@ class DigiFlazzService:
 
 
             "sign":
-            self._create_sign(ref_id)
+            self._create_sign(
+                ref_id
+            )
 
         }
 
@@ -285,26 +316,21 @@ class DigiFlazzService:
 
 
     # ==================================
-    # CEK TAGIHAN PASCA
+    # INQUIRY PASCA
     # ==================================
 
     def inquiry_pasca(
-
         self,
-
         customer_no,
-
         buyer_sku_code,
-
         ref_id
-
     ):
 
 
         payload = {
 
 
-            "commands":
+            "cmd":
             "inq-pasca",
 
 
@@ -325,11 +351,11 @@ class DigiFlazzService:
 
 
             "sign":
-            self._create_sign(ref_id)
-
+            self._create_sign(
+                ref_id
+            )
 
         }
-
 
 
 
@@ -352,23 +378,18 @@ class DigiFlazzService:
     # BAYAR PASCA
     # ==================================
 
-    def pay_pasca(
-
+    def pasca_transaction(
         self,
-
         customer_no,
-
         buyer_sku_code,
-
         ref_id
-
     ):
 
 
         payload = {
 
 
-            "commands":
+            "cmd":
             "pay-pasca",
 
 
@@ -389,8 +410,9 @@ class DigiFlazzService:
 
 
             "sign":
-            self._create_sign(ref_id)
-
+            self._create_sign(
+                ref_id
+            )
 
         }
 
@@ -411,38 +433,28 @@ class DigiFlazzService:
 
 
     # ==================================
-    # AMBIL STATUS
+    # GET STATUS
     # ==================================
 
     def get_status(
-
         self,
-
         response
-
     ):
 
 
         try:
 
 
-            data = response.get(
-
-                "data",
-
-                {}
-
-            )
-
-
             return str(
 
-                data.get(
-
+                response
+                .get(
+                    "data",
+                    {}
+                )
+                .get(
                     "status",
-
                     ""
-
                 )
 
             ).upper()
@@ -458,16 +470,57 @@ class DigiFlazzService:
 
 
 
+
+
+
     # ==================================
-    # AMBIL SN
+    # GET MESSAGE
+    # ==================================
+
+    def get_message(
+        self,
+        response
+    ):
+
+
+        try:
+
+
+            return response.get(
+
+                "data",
+
+                {}
+
+            ).get(
+
+                "message",
+
+                ""
+
+            )
+
+
+
+        except:
+
+
+            return ""
+
+
+
+
+
+
+
+
+    # ==================================
+    # GET SN
     # ==================================
 
     def get_sn(
-
         self,
-
         response
-
     ):
 
 
@@ -494,6 +547,7 @@ class DigiFlazzService:
             )
 
 
+
         except:
 
 
@@ -501,60 +555,7 @@ class DigiFlazzService:
 
 
 
-    # ==================================
-    # CEK STATUS TRANSAKSI DIGIFLAZZ
-    # ==================================
 
-    def check_transaction_status(
-
-        self,
-
-        customer_no,
-
-        buyer_sku_code,
-
-        ref_id
-
-    ):
-
-
-        payload = {
-
-
-            "commands":
-            "check",
-
-
-            "username":
-            self.username,
-
-
-            "buyer_sku_code":
-            buyer_sku_code,
-
-
-            "customer_no":
-            str(customer_no),
-
-
-            "ref_id":
-            ref_id,
-
-
-            "sign":
-            self._create_sign(ref_id)
-
-        }
-
-
-
-        return self._post(
-
-            "transaction",
-
-            payload
-
-        )
 
 
 
@@ -578,9 +579,7 @@ class DigiFlazzService:
 
             "sign":
             self._create_sign(
-
                 "depo"
-
             )
 
         }
@@ -594,6 +593,8 @@ class DigiFlazzService:
             payload
 
         )
+
+
 
 
 

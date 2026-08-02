@@ -1,12 +1,19 @@
 from app.database.connection import get_connection
 
 
+
 class ProductRepository:
 
+
+
+    # =================================
+    # CREATE TABLE
+    # =================================
 
     def create_table(self):
 
         conn = get_connection()
+
 
         conn.execute("""
         CREATE TABLE IF NOT EXISTS products (
@@ -33,121 +40,310 @@ class ProductRepository:
 
             description TEXT,
 
+            service_type TEXT,
+
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
         )
         """)
 
+
         conn.commit()
+
         conn.close()
 
 
 
-    def save_products(self, products):
+
+
+    # =================================
+    # SAVE PRODUCTS
+    # =================================
+
+    def save_products(
+        self,
+        products
+    ):
+
 
         conn = get_connection()
 
+
+
         for p in products:
+
 
             conn.execute("""
             INSERT OR REPLACE INTO products
             (
+
                 buyer_sku_code,
+
                 product_name,
+
                 category,
+
                 brand,
+
                 price,
+
                 type,
+
                 seller_name,
+
                 buyer_product_status,
+
                 seller_product_status,
-                description
+
+                description,
+
+                service_type
+
             )
 
-            VALUES (?,?,?,?,?,?,?,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)
 
             """,
+
             (
-                p.get("buyer_sku_code"),
-                p.get("product_name"),
-                p.get("category"),
-                p.get("brand"),
-                p.get("price", 0),
-                p.get("type"),
-                p.get("seller_name"),
-                p.get("buyer_product_status"),
-                p.get("seller_product_status"),
-                p.get("desc")
+
+                p.get(
+                    "buyer_sku_code"
+                ),
+
+
+                p.get(
+                    "product_name"
+                ),
+
+
+                p.get(
+                    "category"
+                ),
+
+
+                p.get(
+                    "brand"
+                ),
+
+
+                p.get(
+                    "price",
+                    0
+                ),
+
+
+                p.get(
+                    "type"
+                ),
+
+
+                p.get(
+                    "seller_name"
+                ),
+
+
+                p.get(
+                    "buyer_product_status"
+                ),
+
+
+                p.get(
+                    "seller_product_status"
+                ),
+
+
+                p.get(
+                    "desc"
+                ),
+
+
+                p.get(
+                    "service_type"
+                )
+
             ))
 
+
+
         conn.commit()
+
         conn.close()
 
 
 
-    def get_all(self):
+
+
+    # =================================
+    # GET ALL PRODUCTS
+    # =================================
+
+    def get_all(
+        self
+    ):
+
 
         conn = get_connection()
 
+
+
         cursor = conn.execute("""
             SELECT *
+
             FROM products
+
             ORDER BY brand, price
+
         """)
 
+
+
         data = [
+
             dict(row)
+
             for row in cursor.fetchall()
+
         ]
 
+
+
         conn.close()
+
+
 
         return data
 
 
 
-    def get_prepaid(self):
+
+
+    # =================================
+    # GET PREPAID
+    # =================================
+
+    def get_prepaid(
+        self
+    ):
+
 
         conn = get_connection()
 
+
+
         cursor = conn.execute("""
             SELECT *
+
             FROM products
-            WHERE category = 'Pulsa'
-               OR category = 'Data'
+
+            WHERE service_type='PREPAID'
+
             ORDER BY brand, price
+
         """)
 
+
+
         data = [
+
             dict(row)
+
             for row in cursor.fetchall()
+
         ]
 
+
+
         conn.close()
+
+
 
         return data
 
 
 
-    def get_pasca(self):
+
+
+    # =================================
+    # GET POSTPAID
+    # =================================
+
+    def get_pasca(
+        self
+    ):
+
 
         conn = get_connection()
 
+
+
         cursor = conn.execute("""
             SELECT *
+
             FROM products
-            WHERE category NOT IN ('Pulsa','Data')
+
+            WHERE service_type='POSTPAID'
+
             ORDER BY brand, price
+
         """)
 
+
+
         data = [
+
             dict(row)
+
             for row in cursor.fetchall()
+
         ]
+
+
 
         conn.close()
 
+
+
         return data
+
+
+
+
+
+    # =================================
+    # COUNT PRODUCTS
+    # UNTUK DASHBOARD ADMIN
+    # =================================
+
+    def count_products(
+        self
+    ):
+
+
+        conn = get_connection()
+
+
+
+        cursor = conn.execute("""
+            SELECT COUNT(*) total
+
+            FROM products
+
+        """)
+
+
+
+        result = cursor.fetchone()
+
+
+
+        conn.close()
+
+
+
+        return result["total"]
+
+
 
 
 

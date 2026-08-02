@@ -1,0 +1,442 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container">
+
+
+<!-- =====================================
+HEADER
+===================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            📊 RajaPulsa Dashboard
+        </h1>
+
+        <p class="subtitle">
+
+            Selamat datang,
+            {{ admin_name or "Administrator" }}
+
+            <br>
+
+            FlashPay RajaPulsa Admin Panel
+
+        </p>
+
+    </div>
+
+
+    <div class="header-action">
+
+
+        <a href="/admin/products" class="btn">
+            📦 Produk
+        </a>
+
+
+        <a href="/admin/users" class="btn">
+            👥 User
+        </a>
+
+
+        <a href="/admin/transactions" class="btn">
+            🧾 Transaksi
+        </a>
+
+
+        <a href="/admin/logout" class="btn">
+            🚪 Logout
+        </a>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+<!-- =====================================
+STATISTIC CARDS
+===================================== -->
+
+
+<div class="cards">
+
+
+
+<div class="card dashboard-card blue">
+
+<h3>
+👥 Total User
+</h3>
+
+<p>
+{{ data.get("total_user",0) }}
+</p>
+
+<span>
+Customer
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card purple">
+
+<h3>
+📦 Total Produk
+</h3>
+
+<p>
+{{ data.get("total_produk",0) }}
+</p>
+
+<span>
+DigiFlazz Catalog
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card orange">
+
+<h3>
+🧾 Total Transaksi
+</h3>
+
+<p>
+{{ data.get("total_transaksi",0) }}
+</p>
+
+<span>
+Total Order
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card yellow">
+
+<h3>
+⏳ Pending
+</h3>
+
+<p>
+{{ data.get("pending",0) }}
+</p>
+
+<span>
+Menunggu Pembayaran
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card green">
+
+<h3>
+✅ Berhasil
+</h3>
+
+<p>
+{{ data.get("berhasil",0) }}
+</p>
+
+<span>
+Transaksi sukses
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card red">
+
+<h3>
+❌ Gagal
+</h3>
+
+<p>
+{{ data.get("gagal",0) }}
+</p>
+
+<span>
+Transaksi gagal
+</span>
+
+</div>
+
+
+
+
+<div class="card dashboard-card dark">
+
+<h3>
+💰 Omzet
+</h3>
+
+<p>
+
+Rp {{ "{:,}".format(data.get("omzet",0) or 0) }}
+
+</p>
+
+<span>
+Pendapatan RajaPulsa
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- =====================================
+CHART
+===================================== -->
+
+
+<div class="section">
+
+<h2>
+📈 Statistik FlashPay
+</h2>
+
+
+<div class="chart-box">
+
+
+<canvas id="transactionChart"></canvas>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<script>
+
+
+window.totalTransaksi =
+{{ data.get("chart",{}).get("total",0) }};
+
+
+
+window.totalPending =
+{{ data.get("chart",{}).get("pending",0) }};
+
+
+
+window.totalSuccess =
+{{ data.get("chart",{}).get("success",0) }};
+
+
+
+window.totalFailed =
+{{ data.get("chart",{}).get("failed",0) }};
+
+
+
+</script>
+
+
+
+
+
+
+
+<!-- =====================================
+TRANSACTION TABLE
+===================================== -->
+
+
+<div class="section">
+
+
+<div class="table-header">
+
+
+<h2>
+🧾 Transaksi Terbaru
+</h2>
+
+
+<a href="/admin/transactions" class="btn">
+
+Lihat Semua →
+
+</a>
+
+
+</div>
+
+
+
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Produk</th>
+
+<th>Customer</th>
+
+<th>Harga</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody>
+
+
+
+{% for trx in data.get("transaksi",[]) %}
+
+
+<tr>
+
+
+<td>
+
+{{ trx.get("trx_id","-") }}
+
+</td>
+
+
+
+<td>
+
+{{ trx.get("product_name","-") }}
+
+</td>
+
+
+
+<td>
+
+{{ trx.get("customer_no","-") }}
+
+</td>
+
+
+
+<td>
+
+Rp {{ "{:,}".format(trx.get("price",0) or 0) }}
+
+</td>
+
+
+
+<td>
+
+
+{% if trx.get("transaction_status") == "SUCCESS" %}
+
+
+<span class="badge success">
+🟢 SUCCESS
+</span>
+
+
+{% elif trx.get("transaction_status") == "FAILED" %}
+
+
+<span class="badge failed">
+🔴 FAILED
+</span>
+
+
+{% else %}
+
+
+<span class="badge pending">
+🟡 PENDING
+</span>
+
+
+{% endif %}
+
+
+
+</td>
+
+
+</tr>
+
+
+
+{% else %}
+
+
+<tr>
+
+<td colspan="5" style="text-align:center;padding:40px">
+
+📭 Belum ada transaksi
+
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="/static/js/dashboard.js"></script>
+
+
+
+{% endblock %}

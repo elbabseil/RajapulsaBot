@@ -1,0 +1,665 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+
+
+<!-- ===============================
+HEADER
+================================ -->
+
+
+<div class="page-header">
+
+
+<div>
+
+<h1>
+🧾 FlashPay Transactions
+</h1>
+
+
+<p class="subtitle">
+Transaction Management RajaPulsa
+</p>
+
+
+</div>
+
+
+
+<div>
+
+<a href="/admin" class="btn">
+⬅ Dashboard
+</a>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ===============================
+STATISTIC
+================================ -->
+
+
+<div class="cards">
+
+
+<div class="card dashboard-card blue">
+
+<h3>
+🧾 Total
+</h3>
+
+<p>
+{{ total_transaction or 0 }}
+</p>
+
+<span>
+Order
+</span>
+
+</div>
+
+
+
+
+
+<div class="card dashboard-card yellow">
+
+<h3>
+⏳ Pending
+</h3>
+
+<p>
+{{ pending or 0 }}
+</p>
+
+<span>
+Menunggu Pembayaran
+</span>
+
+</div>
+
+
+
+
+
+<div class="card dashboard-card green">
+
+<h3>
+✅ Success
+</h3>
+
+<p>
+{{ success or 0 }}
+</p>
+
+<span>
+Berhasil
+</span>
+
+</div>
+
+
+
+
+
+<div class="card dashboard-card red">
+
+<h3>
+❌ Failed
+</h3>
+
+<p>
+{{ failed or 0 }}
+</p>
+
+<span>
+Gagal
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- ===============================
+TABLE
+================================ -->
+
+
+<h2>
+📋 Transaction List
+</h2>
+
+
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+
+<th>
+ID
+</th>
+
+
+<th>
+Produk
+</th>
+
+
+<th>
+Customer
+</th>
+
+
+<th>
+Harga
+</th>
+
+
+<th>
+Payment
+</th>
+
+
+<th>
+Status
+</th>
+
+
+<th>
+Waktu
+</th>
+
+
+<th>
+Action
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+
+<tbody>
+
+
+{% if transactions %}
+
+
+
+{% for trx in transactions %}
+
+
+<tr>
+
+
+
+<td>
+
+{{ trx["trx_id"] }}
+
+</td>
+
+
+
+
+
+<td>
+
+{{ trx["product_name"] or "-" }}
+
+</td>
+
+
+
+
+
+<td>
+
+{{ trx["customer_no"] or "-" }}
+
+</td>
+
+
+
+
+
+<td>
+
+Rp {{ "{:,}".format(trx["price"] or 0) }}
+
+</td>
+
+
+
+
+
+<td>
+
+{{ trx["payment_status"] or "-" }}
+
+</td>
+
+
+
+
+
+<td>
+
+
+
+{% if trx["transaction_status"] == "SUCCESS" %}
+
+
+<span class="badge success">
+🟢 SUCCESS
+</span>
+
+
+
+{% elif trx["transaction_status"] == "FAILED" %}
+
+
+<span class="badge failed">
+🔴 FAILED
+</span>
+
+
+
+{% elif trx["transaction_status"] == "PROCESSING" %}
+
+
+<span class="badge pending">
+⚙ PROCESSING
+</span>
+
+
+
+{% else %}
+
+
+<span class="badge pending">
+🟡 PENDING
+</span>
+
+
+{% endif %}
+
+
+
+</td>
+
+
+
+
+
+
+
+<td>
+
+{{ trx["created_at"] }}
+
+</td>
+
+
+
+
+
+
+
+<td>
+
+
+<button
+
+class="btn"
+
+onclick="showTransaction(
+
+'{{ trx["trx_id"] }}',
+
+'{{ trx["product_name"] }}',
+
+'{{ trx["customer_no"] }}',
+
+'{{ trx["price"] }}',
+
+'{{ trx["payment_status"] }}',
+
+'{{ trx["transaction_status"] }}',
+
+'{{ trx["created_at"] }}'
+
+)">
+
+👁 Detail
+
+</button>
+
+
+
+
+
+<a
+
+class="btn"
+
+href="/admin/transactions/{{ trx['trx_id'] }}/status/PROCESSING">
+
+⚙
+
+</a>
+
+
+
+
+
+<a
+
+class="btn"
+
+href="/admin/transactions/{{ trx['trx_id'] }}/status/SUCCESS">
+
+✅
+
+</a>
+
+
+
+
+
+<a
+
+class="btn"
+
+href="/admin/transactions/{{ trx['trx_id'] }}/status/FAILED">
+
+❌
+
+</a>
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+{% endfor %}
+
+
+
+
+{% else %}
+
+
+
+<tr>
+
+<td colspan="8"
+
+style="text-align:center;padding:40px">
+
+
+📭 Belum ada transaksi
+
+
+</td>
+
+</tr>
+
+
+{% endif %}
+
+
+
+</tbody>
+
+
+</table>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ===============================
+MODAL DETAIL
+================================ -->
+
+
+<div id="trxModal"
+
+style="
+
+display:none;
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+background:rgba(0,0,0,.6);
+
+z-index:999;
+
+">
+
+
+
+
+
+<div style="
+
+background:white;
+
+width:500px;
+
+margin:100px auto;
+
+padding:30px;
+
+border-radius:15px;
+
+">
+
+
+
+<h2>
+
+🧾 Detail Transaksi
+
+</h2>
+
+
+
+<pre
+
+id="trxDetail"
+
+style="
+
+white-space:pre-wrap;
+
+font-size:15px;
+
+">
+
+</pre>
+
+
+
+
+<button
+
+class="btn"
+
+onclick="closeTransaction()">
+
+❌ Tutup
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+function showTransaction(
+
+id,
+
+product,
+
+customer,
+
+price,
+
+payment,
+
+status,
+
+date
+
+)
+
+{
+
+
+let text = `
+
+ID :
+
+${id}
+
+
+
+Produk :
+
+${product}
+
+
+
+Customer :
+
+${customer}
+
+
+
+Harga :
+
+Rp ${Number(price).toLocaleString()}
+
+
+
+Payment :
+
+${payment}
+
+
+
+Status :
+
+${status}
+
+
+
+Tanggal :
+
+${date}
+
+`;
+
+
+
+document.getElementById(
+"trxDetail"
+).innerText=text;
+
+
+
+document.getElementById(
+"trxModal"
+).style.display="block";
+
+
+}
+
+
+
+
+
+
+function closeTransaction()
+
+{
+
+
+document.getElementById(
+"trxModal"
+).style.display="none";
+
+
+}
+
+
+
+</script>
+
+
+
+
+{% endblock %}

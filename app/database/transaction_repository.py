@@ -76,37 +76,27 @@ class TransactionRepository:
 
 
 
+
     # =====================================
     # CREATE TRANSACTION
     # =====================================
 
     def create(
-
         self,
-
         trx_id,
-
         telegram_id,
-
         product_code,
-
         product_name,
-
         customer_no,
-
         price,
-
         payment_method="QRIS"
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-        cursor.execute(
+        conn.execute(
         """
 
         INSERT INTO transactions
@@ -137,7 +127,6 @@ class TransactionRepository:
 
         updated_at
 
-
         )
 
 
@@ -149,7 +138,7 @@ class TransactionRepository:
 
         trx_id,
 
-        telegram_id,
+        str(telegram_id),
 
         product_code,
 
@@ -182,16 +171,14 @@ class TransactionRepository:
 
 
 
+
     # =====================================
-    # GET TRANSACTION
+    # GET BY TRANSACTION ID
     # =====================================
 
     def get_by_trx_id(
-
         self,
-
         trx_id
-
     ):
 
 
@@ -199,7 +186,6 @@ class TransactionRepository:
 
 
         cursor = conn.execute(
-
         """
 
         SELECT *
@@ -209,10 +195,9 @@ class TransactionRepository:
         WHERE trx_id=?
 
         """,
-
-        (trx_id,)
-
-        )
+        (
+            trx_id,
+        ))
 
 
         row = cursor.fetchone()
@@ -229,54 +214,37 @@ class TransactionRepository:
 
 
     # =====================================
-    # SAVE QRIS DATA
+    # SAVE QRIS
     # =====================================
 
     def update_qris(
-
         self,
-
         trx_id,
-
         qris_id,
-
         qr_string,
-
         expired=None
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-
-        cursor.execute(
-
+        conn.execute(
         """
 
         UPDATE transactions
 
-
         SET
-
 
         qris_id=?,
 
-
         qr_string=?,
-
 
         payment_expired=?,
 
-
         updated_at=?
 
-
         WHERE trx_id=?
-
 
         """,
 
@@ -304,35 +272,19 @@ class TransactionRepository:
 
 
 
-    # =====================================
-    # ALIAS SAVE QRIS
-    # =====================================
-
     def save_qris(
-
         self,
-
         trx_id,
-
         qris_id,
-
         qr_string,
-
         expired=None
-
     ):
 
-
         self.update_qris(
-
             trx_id,
-
             qris_id,
-
             qr_string,
-
             expired
-
         )
 
 
@@ -342,7 +294,7 @@ class TransactionRepository:
 
 
     # =====================================
-    # PAYMENT WORKER QUEUE
+    # PAYMENT QUEUE
     # =====================================
 
     def get_paid_pending(self):
@@ -352,7 +304,6 @@ class TransactionRepository:
 
 
         cursor = conn.execute(
-
         """
 
         SELECT *
@@ -367,7 +318,6 @@ class TransactionRepository:
 
         AND
 
-
         transaction_status='PENDING'
 
 
@@ -375,7 +325,6 @@ class TransactionRepository:
 
 
         """
-
         )
 
 
@@ -399,33 +348,24 @@ class TransactionRepository:
 
 
 
+
     # =====================================
     # UPDATE STATUS
     # =====================================
 
     def update_status(
-
         self,
-
         trx_id,
-
         payment_status=None,
-
         transaction_status=None,
-
         response=None
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-
-        cursor.execute(
-
+        conn.execute(
         """
 
         UPDATE transactions
@@ -472,7 +412,6 @@ class TransactionRepository:
         ))
 
 
-
         conn.commit()
 
         conn.close()
@@ -481,16 +420,14 @@ class TransactionRepository:
 
 
 
+
     # =====================================
-    # WORKER SET PROCESSING
+    # MARK PROCESSING
     # =====================================
 
     def mark_processing(
-
         self,
-
         trx_id
-
     ):
 
 
@@ -506,18 +443,15 @@ class TransactionRepository:
 
 
 
+
     # =====================================
-    # WORKER SUCCESS
+    # MARK SUCCESS
     # =====================================
 
     def mark_success(
-
         self,
-
         trx_id,
-
         response=None
-
     ):
 
 
@@ -534,8 +468,10 @@ class TransactionRepository:
 
 
 
+
+
     # =====================================
-    # WORKER FAILED
+    # MARK FAILED
     # =====================================
 
     def mark_failed(
@@ -544,15 +480,25 @@ class TransactionRepository:
         response=None
     ):
 
+
         self.update_status(
+
             trx_id,
+
             transaction_status="FAILED",
+
             response=response
+
         )
 
 
+
+
+
+
+
     # =====================================
-    # RIWAYAT TRANSAKSI USER
+    # USER HISTORY
     # =====================================
 
     def get_user_transactions(
@@ -561,25 +507,234 @@ class TransactionRepository:
         limit=20
     ):
 
+
         conn = get_connection()
 
+
         cursor = conn.execute(
-            """
-            SELECT *
-            FROM transactions
-            WHERE telegram_id=?
-            ORDER BY id DESC
-            LIMIT ?
-            """,
-            (str(telegram_id), limit)
-        )
+        """
+
+        SELECT *
+
+        FROM transactions
+
+        WHERE telegram_id=?
+
+
+        ORDER BY id DESC
+
+        LIMIT ?
+
+        """,
+
+        (
+
+        str(telegram_id),
+
+        limit
+
+        ))
+
+
 
         rows = cursor.fetchall()
 
+
         conn.close()
 
-        return [dict(row) for row in rows]
+
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
+
+
+
+
+    # =====================================
+    # DASHBOARD
+    # =====================================
+
+
+    def count_transactions(self):
+
+        conn = get_connection()
+
+
+        result = conn.execute(
+        """
+        SELECT COUNT(*) total
+
+        FROM transactions
+        """
+        ).fetchone()
+
+
+        conn.close()
+
+
+        return result["total"]
+
+
+
+
+    def count_pending(self):
+
+        conn = get_connection()
+
+
+        result = conn.execute(
+        """
+        SELECT COUNT(*) total
+
+        FROM transactions
+
+        WHERE transaction_status='PENDING'
+
+        """
+        ).fetchone()
+
+
+        conn.close()
+
+
+        return result["total"]
+
+
+
+
+
+    def count_success(self):
+
+        conn = get_connection()
+
+
+        result = conn.execute(
+        """
+        SELECT COUNT(*) total
+
+        FROM transactions
+
+        WHERE transaction_status='SUCCESS'
+
+        """
+        ).fetchone()
+
+
+        conn.close()
+
+
+        return result["total"]
+
+
+
+
+
+    def count_failed(self):
+
+        conn = get_connection()
+
+
+        result = conn.execute(
+        """
+        SELECT COUNT(*) total
+
+        FROM transactions
+
+        WHERE transaction_status='FAILED'
+
+        """
+        ).fetchone()
+
+
+        conn.close()
+
+
+        return result["total"]
+
+
+
+
+
+    def total_revenue(self):
+
+        conn = get_connection()
+
+
+        result = conn.execute(
+        """
+        SELECT SUM(price) total
+
+        FROM transactions
+
+        WHERE transaction_status='SUCCESS'
+
+        """
+        ).fetchone()
+
+
+        conn.close()
+
+
+        return result["total"] or 0
+
+
+
+
+
+
+    def get_latest(
+        self,
+        limit=10
+    ):
+
+
+        conn = get_connection()
+
+
+        cursor = conn.execute(
+        """
+
+        SELECT *
+
+        FROM transactions
+
+        ORDER BY id DESC
+
+        LIMIT ?
+
+        """,
+        (
+            limit,
+        ))
+
+
+
+        rows = cursor.fetchall()
+
+
+        conn.close()
+
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
 
 
 transaction_repository = TransactionRepository()
+
 transaction_repository.create_table()

@@ -1,13 +1,39 @@
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 
-from app.states.token_pln_state import TokenPLNState
+from app.states.payment import PaymentState
+from app.services.product_service import get_products
 
 
 router = Router()
 
 
-@router.message(F.text == "Token PLN")
+PLN_SKU = {
+
+    "20.000": "pln20",
+
+    "50.000": "pln50",
+
+    "100.000": "pln100",
+
+    "1.000.000": "pln1000",
+
+    # format tanpa titik
+    "20000": "pln20",
+
+    "50000": "pln50",
+
+    "100000": "pln100",
+
+    "1000000": "pln1000"
+
+}
+
+
+
+@router.message(
+    F.text == "Token PLN"
+)
 async def token_pln_menu(
     message: types.Message
 ):
@@ -21,79 +47,89 @@ Silakan pilih nominal:
 20.000
 50.000
 100.000
-200.000
+1.000.000
 """
     )
 
 
+
 @router.message(
-    F.text.in_([
-        "20.000",
-        "50.000",
-        "100.000",
-        "200.000",
-        "20000",
-        "50000",
-        "100000",
-        "200000"
-    ])
+    F.text.in_(
+        list(PLN_SKU.keys())
+    )
 )
 async def token_pln_nominal(
     message: types.Message,
     state: FSMContext
 ):
 
-    await state.update_data(
-        nominal=message.text
+
+    sku = PLN_SKU.get(
+        message.text
     )
 
-    await state.set_state(
-        TokenPLNState.waiting_meter
+
+    products = get_products()
+
+
+    product = None
+
+
+    for p in products:
+
+        if p.get(
+            "buyer_sku_code"
+        ) == sku:
+
+            product = p
+
+            break
+
+
+
+    if not product:
+
+        await message.answer(
+            "❌ Produk PLN tidak ditemukan"
+        )
+
+        return
+
+
+
+    price = int(
+        product.get(
+            "price",
+            0
+        )
     )
+
+
+    await state.update_data(
+
+        sku=sku,
+
+        price=price
+
+    )
+
+
+    await state.set_state(
+        PaymentState.waiting_target
+    )
+
+
 
     await message.answer(
         f"""
 ⚡ Token PLN
 
-Nominal dipilih:
+Produk:
+{product.get('product_name')}
 
-Rp {message.text}
+Harga:
+Rp {price:,}
 
 Silakan masukkan nomor meter PLN.
 """
     )
-
-
-@router.message(
-    TokenPLNState.waiting_meter
-)
-async def token_pln_meter(
-    message: types.Message,
-    state: FSMContext
-):
-
-    data = await state.get_data()
-
-    nominal = data.get(
-        "nominal"
-    )
-
-    nomor_meter = message.text
-
-
-    await message.answer(
-        f"""
-✅ Data Token PLN
-
-Nominal:
-Rp {nominal}
-
-Nomor Meter:
-{nomor_meter}
-
-Sedang diproses...
-"""
-    )
-
-
-    await state.clear()

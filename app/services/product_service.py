@@ -6,6 +6,7 @@ class ProductService:
 
 
     def __init__(self):
+
         product_repository.create_table()
 
 
@@ -15,23 +16,66 @@ class ProductService:
         print("[SYNC] Mengambil produk DigiFlazz...")
 
 
+
+        # =================================
+        # AMBIL PRODUK PREPAID
+        # =================================
+
         prepaid = digiflazz.prepaid_price_list()
 
+
         if not isinstance(prepaid, list):
+
             prepaid = []
 
 
+
+        for product in prepaid:
+
+            product["service_type"] = "PREPAID"
+
+
+
+
+        # =================================
+        # AMBIL PRODUK POSTPAID
+        # =================================
+
         pasca = digiflazz.pasca_price_list()
 
+
         if not isinstance(pasca, list):
+
             pasca = []
 
+
+
+        for product in pasca:
+
+            product["service_type"] = "POSTPAID"
+
+
+
+
+        # =================================
+        # GABUNG DATA
+        # =================================
 
         products = prepaid + pasca
 
 
+
+
+        # =================================
+        # SIMPAN KE DATABASE
+        # =================================
+
         if products:
-            product_repository.save_products(products)
+
+            product_repository.save_products(
+                products
+            )
+
 
 
         print(
@@ -39,13 +83,24 @@ class ProductService:
         )
 
 
+
         return {
+
             "prepaid": len(prepaid),
+
             "pasca": len(pasca),
+
             "total": len(products)
+
         }
 
 
+
+
+
+    # =================================
+    # QUERY PRODUK
+    # =================================
 
     def get_all_products(self):
 
@@ -62,6 +117,7 @@ class ProductService:
     def get_pasca_products(self):
 
         return product_repository.get_pasca()
+
 
 
 

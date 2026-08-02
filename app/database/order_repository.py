@@ -29,6 +29,10 @@ class OrderRepository:
 
             price INTEGER,
 
+
+            qr_id TEXT,
+
+
             payment_status TEXT DEFAULT 'UNPAID',
 
             status TEXT DEFAULT 'PENDING',
@@ -43,6 +47,7 @@ class OrderRepository:
 
             telegram_id INTEGER,
 
+
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -51,29 +56,49 @@ class OrderRepository:
         """)
 
 
-        # migration database lama
 
-        try:
+        # =========================
+        # MIGRATION DATABASE LAMA
+        # =========================
 
-            conn.execute("""
+
+        migrations = [
+
+            """
             ALTER TABLE orders
             ADD COLUMN payment_status TEXT DEFAULT 'UNPAID'
-            """)
-
-            print(
-                "[MIGRATION] payment_status ADDED"
-            )
+            """,
 
 
-        except Exception:
+            """
+            ALTER TABLE orders
+            ADD COLUMN qr_id TEXT
+            """
 
-            pass
+        ]
+
+
+
+        for migration in migrations:
+
+            try:
+
+                conn.execute(
+                    migration
+                )
+
+
+            except Exception:
+
+                pass
 
 
 
         conn.commit()
 
         conn.close()
+
+
 
 
 
@@ -102,33 +127,58 @@ class OrderRepository:
             """
             INSERT INTO orders
             (
+
                 ref_id,
+
                 customer_no,
+
                 buyer_sku_code,
+
                 product_name,
+
                 price,
+
                 payment_status,
+
                 status,
+
                 message,
+
                 sn,
+
                 telegram_id
+
+
             )
 
             VALUES (?,?,?,?,?,?,?,?,?,?)
 
             """,
+
             (
+
                 ref_id,
+
                 customer_no,
+
                 buyer_sku_code,
+
                 product_name,
+
                 price,
+
                 "UNPAID",
+
                 status,
+
                 message,
+
                 sn,
+
                 telegram_id
+
             )
+
         )
 
 
@@ -138,8 +188,10 @@ class OrderRepository:
 
 
 
+
+
     # =========================
-    # UPDATE ORDER STATUS
+    # UPDATE STATUS
     # =========================
 
     def update_status(
@@ -175,19 +227,29 @@ class OrderRepository:
             WHERE ref_id=?
 
             """,
+
             (
+
                 status,
+
                 message,
+
                 sn,
+
                 provider_response,
+
                 ref_id
+
             )
+
         )
 
 
         conn.commit()
 
         conn.close()
+
+
 
 
 
@@ -219,10 +281,15 @@ class OrderRepository:
             WHERE ref_id=?
 
             """,
+
             (
+
                 payment_status,
+
                 ref_id
+
             )
+
         )
 
 
@@ -230,8 +297,12 @@ class OrderRepository:
 
         conn.close()
 
+
+
+
+
     # =========================
-    # UPDATE QR ID
+    # SAVE QRIS ID
     # =========================
 
     def update_qr_id(
@@ -239,6 +310,7 @@ class OrderRepository:
         ref_id,
         qr_id
     ):
+
 
         conn = get_connection()
 
@@ -253,19 +325,27 @@ class OrderRepository:
 
                 updated_at=CURRENT_TIMESTAMP
 
+
             WHERE ref_id=?
 
             """,
+
             (
+
                 qr_id,
+
                 ref_id
+
             )
+
         )
 
 
         conn.commit()
 
         conn.close()
+
+
 
 
 
@@ -285,9 +365,15 @@ class OrderRepository:
 
             FROM orders
 
-            WHERE status='PENDING'
 
-            AND qr_id IS NOT NULL
+            WHERE
+
+            status='PENDING'
+
+            AND
+
+            qr_id IS NOT NULL
+
 
             ORDER BY id ASC
 
@@ -295,19 +381,25 @@ class OrderRepository:
         )
 
 
-        data = [
 
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
+        rows = cursor.fetchall()
 
 
         conn.close()
 
 
-        return data
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
+
 
 
     # =========================
@@ -326,7 +418,11 @@ class OrderRepository:
 
             FROM orders
 
-            WHERE status='PROCESSING'
+
+            WHERE
+
+            status='PROCESSING'
+
 
             ORDER BY id ASC
 
@@ -334,19 +430,24 @@ class OrderRepository:
         )
 
 
-        data = [
 
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
+        rows = cursor.fetchall()
 
 
         conn.close()
 
 
-        return data
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
 
 
 
@@ -372,24 +473,29 @@ class OrderRepository:
         )
 
 
-        data = [
 
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
+        rows = cursor.fetchall()
 
 
         conn.close()
 
 
-        return data
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
 
 
 
     # =========================
-    # GET BY REF
+    # GET BY REF ID
     # =========================
 
     def get_by_ref(
@@ -410,9 +516,11 @@ class OrderRepository:
             WHERE ref_id=?
 
             """,
+
             (
                 ref_id,
             )
+
         )
 
 
@@ -422,7 +530,11 @@ class OrderRepository:
         conn.close()
 
 
+
         return dict(row) if row else None
+
+
+
 
 
 
@@ -445,23 +557,28 @@ class OrderRepository:
 
             SET
 
-                retry_count = retry_count + 1,
+            retry_count = retry_count + 1,
 
-                updated_at=CURRENT_TIMESTAMP
+            updated_at=CURRENT_TIMESTAMP
 
 
             WHERE ref_id=?
 
             """,
+
             (
                 ref_id,
             )
+
         )
 
 
         conn.commit()
 
         conn.close()
+
+
+
 
 
 
@@ -483,9 +600,11 @@ class OrderRepository:
             WHERE ref_id=?
 
             """,
+
             (
                 ref_id,
             )
+
         )
 
 
@@ -495,12 +614,15 @@ class OrderRepository:
         conn.close()
 
 
+
         if row:
 
             return row["retry_count"]
 
 
         return 0
+
+
 
 
 
@@ -519,6 +641,7 @@ class OrderRepository:
             SELECT COUNT(*) total
 
             FROM orders
+
             """
         )
 
@@ -529,9 +652,14 @@ class OrderRepository:
         conn.close()
 
 
+
         return result["total"]
 
 
 
 
+
 order_repository = OrderRepository()
+
+
+order_repository.create_table()

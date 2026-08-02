@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+
+
+<h1>
+📦 FlashPay Product Catalog
+</h1>
+
+
+<table>
+
+
+<tr>
+
+<th>SKU</th>
+<th>Produk</th>
+<th>Kategori</th>
+<th>Harga</th>
+
+</tr>
+
+
+
+{% for p in products %}
+
+<tr>
+
+<td>
+{{ p["sku"] }}
+</td>
+
+
+<td>
+{{ p["product_name"] }}
+</td>
+
+
+<td>
+{{ p["category"] }}
+</td>
+
+
+<td>
+Rp {{ "{:,}".format(p["price"] or 0) }}
+</td>
+
+
+</tr>
+
+
+{% endfor %}
+
+
+</table>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+
+
+<h1>
+🧾 Detail Transaksi
+</h1>
+
+
+
+<table>
+
+
+<tr>
+
+<th>ID</th>
+
+<td>
+{{ trx["trx_id"] }}
+</td>
+
+</tr>
+
+
+
+
+<tr>
+
+<th>Produk</th>
+
+<td>
+{{ trx["product_name"] }}
+</td>
+
+</tr>
+
+
+
+
+
+<tr>
+
+<th>Customer</th>
+
+<td>
+{{ trx["customer_no"] }}
+</td>
+
+</tr>
+
+
+
+
+
+<tr>
+
+<th>Harga</th>
+
+<td>
+
+Rp {{ "{:,}".format(trx["price"]) }}
+
+</td>
+
+</tr>
+
+
+
+
+
+<tr>
+
+<th>Status</th>
+
+<td>
+
+{{ trx["transaction_status"] }}
+
+</td>
+
+</tr>
+
+
+
+
+
+<tr>
+
+<th>Waktu</th>
+
+<td>
+
+{{ trx["created_at"] }}
+
+</td>
+
+</tr>
+
+
+
+</table>
+
+
+
+<br>
+
+
+<a href="/admin/transactions"
+class="btn">
+
+⬅ Kembali
+
+</a>
+
+
+
+</div>
+
+
+{% endblock %}
