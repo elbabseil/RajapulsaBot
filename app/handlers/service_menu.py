@@ -1,6 +1,8 @@
 from aiogram import Router, types, F
 
+
 from app.services.catalog_service import catalog_service
+
 
 from app.keyboards.marketplace_keyboard import (
     build_category_keyboard,
@@ -9,41 +11,63 @@ from app.keyboards.marketplace_keyboard import (
 )
 
 
+
 router = Router()
 
 
 
-# ==========================================
+
+
+# =====================================================
 # MENU PREPAID
-# ==========================================
+# =====================================================
 
 @router.message(
     F.text == "⚡ Prabayar"
 )
 async def menu_prepaid(
+
     message: types.Message
+
 ):
 
 
-    categories = [
+    categories = catalog_service.get_categories(
 
-        "Pulsa",
-        "Data",
-        "Games",
-        "Voucher",
-        "PLN",
-        "eSIM",
-        "Masa Aktif"
+        "prepaid"
 
-    ]
+    )
+
+
+
+    if not categories:
+
+
+        await message.answer(
+
+            "❌ Layanan prabayar belum tersedia"
+
+        )
+
+        return
+
+
 
 
     await message.answer(
 
-        "⚡ Pilih Layanan Prabayar",
+        """
+⚡ LAYANAN PRABAYAR
+
+Silakan pilih kategori:
+""",
 
         reply_markup=build_category_keyboard(
-            categories
+
+            categories,
+
+            "prepaid"
+
         )
 
     )
@@ -52,9 +76,11 @@ async def menu_prepaid(
 
 
 
-# ==========================================
+
+
+# =====================================================
 # MENU POSTPAID
-# ==========================================
+# =====================================================
 
 @router.message(
     F.text == "🧾 Pascabayar"
@@ -66,23 +92,20 @@ async def menu_postpaid(
 ):
 
 
-    # Pascabayar DigiFlazz berada
-    # dalam kategori Pascabayar
+    categories = catalog_service.get_categories(
 
-
-    brands = catalog_service.get_brands(
-
-        "Pascabayar"
+        "postpaid"
 
     )
 
 
-    if not brands:
+
+    if not categories:
 
 
         await message.answer(
 
-            "❌ Layanan Pascabayar belum tersedia"
+            "❌ Layanan pascabayar belum tersedia"
 
         )
 
@@ -90,13 +113,20 @@ async def menu_postpaid(
 
 
 
+
     await message.answer(
 
-        "🧾 Pilih Provider Pascabayar",
+        """
+🧾 LAYANAN PASCABAYAR
 
-        reply_markup=build_brand_keyboard(
+Silakan pilih kategori:
+""",
 
-            brands
+        reply_markup=build_category_keyboard(
+
+            categories,
+
+            "postpaid"
 
         )
 
@@ -106,9 +136,11 @@ async def menu_postpaid(
 
 
 
-# ==========================================
-# PILIH CATEGORY PREPAID
-# ==========================================
+
+
+# =====================================================
+# PILIH CATEGORY
+# =====================================================
 
 @router.callback_query(
     F.data.startswith("category:")
@@ -120,21 +152,38 @@ async def pilih_category(
 ):
 
 
-    category = callback.data.replace(
+    try:
 
-        "category:",
 
-        ""
+        _, service_type, category = callback.data.split(":")
 
-    )
+
+    except ValueError:
+
+
+        await callback.answer(
+
+            "Format kategori salah",
+
+            show_alert=True
+
+        )
+
+        return
+
+
 
 
 
     brands = catalog_service.get_brands(
 
-        category
+        category,
+
+        service_type
 
     )
+
+
 
 
 
@@ -147,6 +196,7 @@ async def pilih_category(
 
         )
 
+
         await callback.answer()
 
         return
@@ -154,19 +204,31 @@ async def pilih_category(
 
 
 
+
+
     await callback.message.answer(
 
-        f"📱 Pilih Provider\n\n"
-        f"Layanan: {category}",
+        f"""
+🏷 PILIH PROVIDER
 
+
+Kategori:
+{category}
+
+""",
 
         reply_markup=build_brand_keyboard(
 
-            brands
+            brands,
+
+            service_type,
+
+            category
 
         )
 
     )
+
 
 
     await callback.answer()
@@ -175,9 +237,11 @@ async def pilih_category(
 
 
 
-# ==========================================
+
+
+# =====================================================
 # PILIH BRAND
-# ==========================================
+# =====================================================
 
 @router.callback_query(
     F.data.startswith("brand:")
@@ -189,25 +253,41 @@ async def pilih_brand(
 ):
 
 
-    brand = callback.data.replace(
+    try:
 
-        "brand:",
 
-        ""
+        _, service_type, category, brand = callback.data.split(":")
+
+
+    except ValueError:
+
+
+        await callback.answer(
+
+            "Format provider salah",
+
+            show_alert=True
+
+        )
+
+        return
+
+
+
+
+
+
+    products = catalog_service.get_products(
+
+        category,
+
+        brand,
+
+        service_type
 
     )
 
 
-
-    products = [
-
-        p
-
-        for p in catalog_service.products
-
-        if p.get("brand") == brand
-
-    ]
 
 
 
@@ -220,6 +300,7 @@ async def pilih_brand(
 
         )
 
+
         await callback.answer()
 
         return
@@ -227,19 +308,33 @@ async def pilih_brand(
 
 
 
+
+
     await callback.message.answer(
 
-        f"🛒 Pilih Produk\n\n"
-        f"Provider: {brand}",
+        f"""
+🛒 PILIH PRODUK
 
+
+Kategori:
+{category}
+
+
+Provider:
+{brand}
+
+""",
 
         reply_markup=build_product_keyboard(
 
-            products[:30]
+            products[:50],
+
+            service_type
 
         )
 
     )
+
 
 
     await callback.answer()

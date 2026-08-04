@@ -6,7 +6,7 @@ from app.database.transaction_repository import transaction_repository
 
 from worker.payment_worker import payment_worker
 
-
+from app.handlers.start_handler import router as start_router
 
 def startup():
 

@@ -1,13 +1,21 @@
 from app.handlers import (
+
     start,
-    marketplace_handler,
-    product_handler,
-    pln_handler,
-    token_pln,
-    payment_handler,
-    history_handler,
+
     service_menu,
+
+    marketplace_handler,
+
+    token_pln,
+
+    pascabayar,
+
+    payment_handler,
+
+    history_handler,
+
     ai_handler
+
 )
 
 
@@ -15,77 +23,125 @@ from app.handlers import (
 def register_routers(dp):
 
 
-    # =========================
+    print("==============================")
+    print("REGISTER ROUTERS")
+    print("==============================")
+
+
+
+    # =====================================
     # START / MENU UTAMA
-    # =========================
+    # =====================================
 
     dp.include_router(
+
         start.router
+
     )
 
 
-    # =========================
-    # SERVICE MENU
-    # Prabayar / Pascabayar
-    # HARUS SEBELUM AI
-    # =========================
+
+    # =====================================
+    # MENU LAYANAN
+    # ⚡ Prabayar
+    # 🧾 Pascabayar
+    # =====================================
 
     dp.include_router(
+
         service_menu.router
+
     )
 
 
-    # =========================
+
+    # =====================================
     # MARKETPLACE PRODUK
-    # =========================
+    #
+    # Pulsa
+    # Paket Data
+    # Voucher
+    # Games
+    # =====================================
 
     dp.include_router(
+
         marketplace_handler.router
+
     )
 
 
-    # =========================
-    # PLN
-    # Token PLN + Tagihan PLN
-    # =========================
 
-    dp.include_router(
-        pln_handler.router
-    )
-
-
-    # =========================
+    # =====================================
     # TOKEN PLN
-    # =========================
+    # Harus sebelum payment
+    # =====================================
 
     dp.include_router(
+
         token_pln.router
+
     )
 
 
-    # =========================
-    # PEMBAYARAN QRIS
-    # =========================
+
+    # =====================================
+    # PASCABAYAR
+    #
+    # PLN Pascabayar
+    # BPJS
+    # PDAM
+    # dll
+    # =====================================
 
     dp.include_router(
+
+        pascabayar.router
+
+    )
+
+
+
+    # =====================================
+    # PAYMENT CENTER
+    #
+    # Semua QRIS
+    # bayar:
+    # =====================================
+
+    dp.include_router(
+
         payment_handler.router
+
     )
 
 
-    # =========================
+
+    # =====================================
     # RIWAYAT TRANSAKSI
-    # =========================
+    # =====================================
 
     dp.include_router(
+
         history_handler.router
+
     )
 
 
-    # =========================
+
+    # =====================================
     # AI ASSISTANT
-    # PALING BAWAH
-    # =========================
+    # HARUS TERAKHIR
+    # =====================================
 
     dp.include_router(
+
         ai_handler.router
+
     )
+
+
+
+    print("==============================")
+    print("ALL ROUTERS REGISTERED")
+    print("==============================")

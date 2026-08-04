@@ -11,12 +11,6 @@ from app.database.transaction_repository import (
 )
 
 
-from app.keyboards.marketplace_keyboard import (
-    build_brand_keyboard,
-    build_product_keyboard
-)
-
-
 from app.keyboards.payment_keyboard import (
     bayar_keyboard
 )
@@ -35,113 +29,69 @@ router = Router()
 
 
 
-# ==========================================
-# MENU PULSA
-# ==========================================
-
-@router.message(
-    F.text == "📱 Pulsa"
-)
-async def menu_pulsa(
-    message: types.Message
-):
-
-    brands = catalog_service.get_brands(
-        "Pulsa"
-    )
 
 
-    if not brands:
-
-        await message.answer(
-            "❌ Operator tidak tersedia"
-        )
-
-        return
-
-
-
-    await message.answer(
-
-        "📱 Pilih Operator",
-
-        reply_markup=build_brand_keyboard(
-            brands
-        )
-
-    )
-
-
-
-# ==========================================
-# PILIH BRAND
-# ==========================================
+# =====================================================
+# PREPAID PRODUCT
+# =====================================================
 
 @router.callback_query(
-    F.data.startswith("brand:")
+    F.data.startswith("prepaid:")
 )
-async def choose_brand(
-    callback: types.CallbackQuery
+async def choose_prepaid(
+    callback: types.CallbackQuery,
+    state: FSMContext
 ):
 
+    sku = callback.data.split(":")[1]
 
-    brand = callback.data.split(":")[1]
-
-
-    products = catalog_service.get_products(
-        "Pulsa",
-        brand
+    await process_product(
+        callback,
+        state,
+        sku
     )
-
-
-    if not products:
-
-        await callback.answer(
-            "Produk tidak tersedia",
-            show_alert=True
-        )
-
-        return
-
-
-
-    await callback.message.edit_text(
-
-        f"""
-📱 {brand}
-
-Pilih Produk
-""",
-
-        reply_markup=build_product_keyboard(
-            products
-        )
-
-    )
-
 
     await callback.answer()
 
 
 
 
-# ==========================================
-# PILIH PRODUK
-# ==========================================
+
+# =====================================================
+# POSTPAID PRODUCT
+# =====================================================
 
 @router.callback_query(
-    F.data.startswith("product:")
+    F.data.startswith("postpaid:")
 )
-async def choose_product(
-
+async def choose_postpaid(
     callback: types.CallbackQuery,
-
     state: FSMContext
-
 ):
 
-
     sku = callback.data.split(":")[1]
+
+    await process_product(
+        callback,
+        state,
+        sku
+    )
+
+    await callback.answer()
+
+
+
+
+
+# =====================================================
+# PROCESS PRODUCT
+# =====================================================
+
+async def process_product(
+    callback,
+    state,
+    sku
+):
 
 
     product = catalog_service.get_product_by_sku(
@@ -149,33 +99,21 @@ async def choose_product(
     )
 
 
-
     if not product:
 
-        await callback.answer(
-            "Produk tidak ditemukan",
-            show_alert=True
+        await callback.message.answer(
+            "❌ Produk tidak ditemukan"
         )
 
         return
 
 
 
-
-    await state.update_data(
-
-        sku=product["buyer_sku_code"],
-
-        product_name=product["product_name"],
-
-        category=product["category"],
-
-        brand=product["brand"],
-
-        price=product["price"],
-
-        target=None
-
+    price = int(
+        product.get(
+            "price",
+            0
+        )
     )
 
 
@@ -186,9 +124,31 @@ async def choose_product(
 
 
 
-    # =====================================
-    # PRODUK BUTUH TARGET
-    # =====================================
+    await state.update_data(
+
+        sku=sku,
+
+        product_name=product.get(
+            "product_name"
+        ),
+
+        brand=product.get(
+            "brand",
+            "-"
+        ),
+
+        category=product.get(
+            "category",
+            ""
+        ),
+
+        price=price
+
+    )
+
+
+
+
 
     if target_text:
 
@@ -201,16 +161,19 @@ async def choose_product(
         await callback.message.answer(
 
 f"""
-📦 Produk:
-{product['product_name']}
+📦 PRODUK
 
 
-🏷 Operator:
-{product['brand']}
+{product.get('product_name')}
+
+
+🏷 Provider:
+{product.get('brand','-')}
 
 
 💰 Harga:
-Rp {product['price']:,}
+Rp {price:,}
+
 
 
 {target_text}
@@ -218,108 +181,135 @@ Rp {product['price']:,}
 
         )
 
-
-
-    # =====================================
-    # PRODUK TANPA TARGET
-    # CONTOH:
-    # WAVE GAME
-    # VOUCHER CODE
-    # =====================================
-
-    else:
-
-
-        await state.clear()
-
-
-        await callback.message.answer(
-
-f"""
-📦 Produk:
-{product['product_name']}
-
-
-🏷 Operator:
-{product['brand']}
-
-
-💰 Harga:
-Rp {product['price']:,}
-
-
-🎟 Voucher Digital
-
-
-Tekan tombol BAYAR SEKARANG
-untuk membuat QRIS.
-""",
-
-            reply_markup=bayar_keyboard(
-                product["buyer_sku_code"]
-            )
-
-        )
-
-
-
-    await callback.answer()
+        return
 
 
 
 
-# ==========================================
-# BAYAR PRODUK TANPA TARGET
-# ==========================================
-
-@router.callback_query(
-    F.data.startswith("bayar:")
-)
-async def bayar_voucher(
-
-    callback: types.CallbackQuery
-
-):
 
 
-    sku = callback.data.split(":")[1]
+    # produk tanpa nomor langsung buat transaksi
 
 
-
-    product = catalog_service.get_product_by_sku(
-        sku
+    await create_transaction(
+        callback.message,
+        callback.from_user.id,
+        state
     )
 
 
 
-    if not product:
 
-        await callback.answer(
-            "Produk tidak ditemukan",
-            show_alert=True
+
+
+
+
+# =====================================================
+# INPUT TARGET
+# =====================================================
+
+@router.message(
+    PaymentState.waiting_target
+)
+async def receive_target(
+
+    message: types.Message,
+
+    state: FSMContext
+
+):
+
+
+    target = message.text.strip()
+
+
+
+    if not target.isdigit():
+
+        await message.answer(
+            "❌ Nomor harus berupa angka"
         )
 
         return
 
 
 
-    await callback.message.answer(
-        "⏳ Membuat order dan QRIS..."
+
+    await state.update_data(
+        target=target
     )
 
 
 
-    # ===============================
-    # CREATE ORDER
-    # ===============================
+    await create_transaction(
+
+        message,
+
+        message.from_user.id,
+
+        state
+
+    )
+
+
+
+
+
+# =====================================================
+# CREATE TRANSACTION
+# QRIS TIDAK DISINI
+# HANYA BUAT ORDER
+# =====================================================
+
+async def create_transaction(
+
+    message,
+
+    telegram_id,
+
+    state
+
+):
+
+
+    data = await state.get_data()
+
+
+
+    sku = data.get(
+        "sku"
+    )
+
+
+    product_name = data.get(
+        "product_name"
+    )
+
+
+    price = int(
+        data.get(
+            "price",
+            0
+        )
+    )
+
+
+    target = data.get(
+        "target",
+        ""
+    )
+
+
+
+
 
     order = order_service.create_order(
 
-        customer_no=None,
+        customer_no=target,
 
-        buyer_sku_code=product["buyer_sku_code"],
+        buyer_sku_code=sku,
 
-        telegram_id=callback.from_user.id
+        telegram_id=telegram_id
 
     )
 
@@ -328,18 +318,16 @@ async def bayar_voucher(
     if order.get("status") == "FAILED":
 
 
-        await callback.message.answer(
+        await message.answer(
 
-            "❌ Gagal membuat order\n\n"
-            +
-            order.get(
-                "message",
-                ""
-            )
+            "❌ Gagal membuat transaksi"
 
         )
 
+        await state.clear()
+
         return
+
 
 
 
@@ -349,125 +337,61 @@ async def bayar_voucher(
 
 
 
-    # ===============================
-    # SIMPAN TRANSAKSI
-    # ===============================
 
     transaction_repository.create(
 
         ref_id,
 
-        callback.message.chat.id,
+        message.chat.id,
 
-        product["buyer_sku_code"],
+        sku,
 
-        product["product_name"],
+        product_name,
 
-        "",
+        target,
 
-        product["price"]
-
-    )
-
-
-
-    # ===============================
-    # BUAT QRIS
-    # ===============================
-
-    from app.services.xendit_service import xendit
-
-
-    qris = xendit.create_qris(
-
-        ref_id,
-
-        product["price"]
-
-    )
-
-
-
-    if not qris:
-
-
-        await callback.message.answer(
-
-            "❌ Gagal membuat QRIS"
-
-        )
-
-        return
-
-
-
-
-    qr_string = (
-
-        qris.get("qr_string")
-
-        or
-
-        qris.get("qr_code")
-
-    )
-
-
-
-    transaction_repository.save_qris(
-
-        ref_id,
-
-        qris.get("id"),
-
-        qr_string
+        price
 
     )
 
 
 
 
-    qr_url = (
 
-        "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
+    await message.answer(
 
-        +
-
-        qr_string
-
-    )
-
-
-
-
-    await callback.message.answer_photo(
-
-        qr_url,
-
-
-        caption=f"""
-
-⚡ QRIS PEMBAYARAN
+f"""
+✅ TRANSAKSI DIBUAT
 
 
 📦 Produk:
-{product['product_name']}
+{product_name}
+
+
+📱 Tujuan:
+{target if target else "-"}
 
 
 💰 Harga:
-Rp {product['price']:,}
+Rp {price:,}
 
 
 🆔 ID:
 {ref_id}
 
 
-Silakan lakukan pembayaran.
 
-Setelah lunas voucher akan diproses.
-"""
+Silakan tekan BAYAR SEKARANG.
+""",
+
+        reply_markup=bayar_keyboard(
+
+            ref_id
+
+        )
 
     )
 
 
-    await callback.answer()
+
+    await state.clear()

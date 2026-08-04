@@ -9,6 +9,10 @@ router = APIRouter(
 )
 
 
+# =====================================
+# BUY PRODUCT
+# =====================================
+
 @router.post("/buy")
 def buy(
 
@@ -34,11 +38,11 @@ def buy(
 
         result = buy_product(
 
-            telegram_id,
+            telegram_id=telegram_id,
 
-            buyer_sku_code,
+            buyer_sku_code=buyer_sku_code,
 
-            customer_no
+            customer_no=customer_no
 
         )
 
@@ -50,7 +54,6 @@ def buy(
 
 
         return result
-
 
 
     except Exception as e:

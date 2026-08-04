@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Produk | FlashPay RajaPulsa</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        FlashPay RajaPulsa
+    </div>
+
+
+    <nav>
+
+        <a href="/">
+            Home
+        </a>
+
+        <a href="/layanan">
+            Layanan
+        </a>
+
+        <a href="/produk">
+            Produk
+        </a>
+
+
+        <a href="/merchant">
+            Merchant
+        </a>
+
+
+        <a href="/kontak">
+            Kontak
+        </a>
+
+    </nav>
+
+
+</header>
+
+
+
+
+
+<main class="container">
+
+
+<h1>
+    Produk Digital FlashPay RajaPulsa
+</h1>
+
+
+<p class="subtitle">
+
+Pilih layanan PPOB sesuai kebutuhan Anda
+
+</p>
+
+
+
+
+<h2>
+Kategori Produk
+</h2>
+
+
+
+
+<div id="category-container" class="category-grid">
+
+
+<!-- DATA API MASUK DISINI -->
+
+
+</div>
+
+
+
+</main>
+
+
+
+
+
+
+<footer>
+
+
+<p>
+© 2026 FlashPay RajaPulsa
+</p>
+
+
+<p>
+Platform PPOB Digital Indonesia
+</p>
+
+
+</footer>
+
+
+
+
+
+
+
+
+<script>
+
+
+async function loadCategories(){
+
+
+    const container = document.getElementById(
+        "category-container"
+    );
+
+
+    try{
+
+
+        const response = await fetch(
+            "/public/categories"
+        );
+
+
+        const data = await response.json();
+
+
+
+        if(
+            data.status !== "success"
+        ){
+
+            throw new Error(
+                "Gagal mengambil kategori"
+            );
+
+        }
+
+
+
+
+        const icons = {
+
+
+            "Pulsa":"📱",
+
+            "Data":"🌐",
+
+            "PLN":"⚡",
+
+            "Games":"🎮",
+
+            "Voucher":"🎁",
+
+            "Pascabayar":"🧾",
+
+            "TV":"📺",
+
+            "eSIM":"📱",
+
+            "Gas":"🔥",
+
+            "Masa Aktif":"📱",
+
+            "Aktivasi Voucher":"📱",
+
+            "Aktivasi Perdana":"📱",
+
+            "Paket SMS & Telpon":"📱"
+
+
+        };
+
+
+
+
+
+        data.categories.forEach(
+            category => {
+
+
+
+            const card =
+            document.createElement(
+                "div"
+            );
+
+
+            card.className =
+            "category-card";
+
+
+
+
+            card.innerHTML = `
+
+
+                <div class="category-icon">
+
+                    ${
+                        icons[category]
+                        ||
+                        "📱"
+                    }
+
+                </div>
+
+
+
+                <h3>
+
+                    ${category}
+
+                </h3>
+
+
+
+                <p>
+
+                Lihat produk ${category}
+
+                </p>
+
+
+
+
+                <a
+
+                href="/produk-list?category=${encodeURIComponent(category)}"
+
+                class="buy-button"
+
+                >
+
+                Lihat Produk
+
+                </a>
+
+
+            `;
+
+
+
+            container.appendChild(card);
+
+
+
+        });
+
+
+
+    }
+
+    catch(error){
+
+
+        container.innerHTML = `
+
+
+        <div class="error-box">
+
+        Gagal memuat kategori produk
+
+        </div>
+
+
+        `;
+
+
+        console.log(error);
+
+
+    }
+
+
+}
+
+
+
+
+
+loadCategories();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>

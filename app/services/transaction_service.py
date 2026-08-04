@@ -3,12 +3,11 @@ from app.database.order_repository import order_repository
 import uuid
 
 
-
 class TransactionService:
 
 
     # =====================================
-    # BUY PRODUCT
+    # CREATE BUY ORDER
     # =====================================
 
     def buy_product(
@@ -17,7 +16,6 @@ class TransactionService:
         product,
         customer_no
     ):
-
 
         print("==============================")
         print("SERVICE BUY PRODUCT MASUK")
@@ -36,12 +34,11 @@ class TransactionService:
         print("REF ID:", ref_id)
 
 
-
         try:
 
 
             # =========================
-            # SIMPAN ORDER AWAL
+            # SIMPAN ORDER
             # =========================
 
             order_repository.save_order(
@@ -58,7 +55,7 @@ class TransactionService:
 
                 "PENDING",
 
-                "Menunggu proses DigiFlazz",
+                "Menunggu pembayaran",
 
                 None,
 
@@ -68,29 +65,8 @@ class TransactionService:
 
 
             print("==============================")
-            print("SAVE ORDER BERHASIL")
+            print("ORDER DISIMPAN")
             print("==============================")
-
-
-            order = {
-
-                "ref_id": ref_id,
-
-                "customer_no": customer_no,
-
-                "buyer_sku_code":
-                product["buyer_sku_code"]
-
-            }
-
-
-
-            # =========================
-            # KIRIM DIGIFLAZZ
-            # =========================
-
-            result = self.process_order(order)
-
 
 
             return {
@@ -106,16 +82,24 @@ class TransactionService:
                 product["product_name"],
 
 
+                "amount":
+                product["price"],
+
+
                 "status":
-                result["status"],
+                "PENDING",
+
+
+                "payment_status":
+                "UNPAID",
 
 
                 "message":
-                result["message"]
+                "Menunggu pembayaran"
+
 
 
             }
-
 
 
 
@@ -123,7 +107,7 @@ class TransactionService:
 
 
             print("==============================")
-            print("BUY PRODUCT ERROR")
+            print("CREATE ORDER ERROR")
             print(e)
             print("==============================")
 
@@ -143,10 +127,8 @@ class TransactionService:
 
 
 
-
-
     # =====================================
-    # PROCESS DIGIFLAZZ
+    # PROCESS DIGIFLAZZ AFTER PAYMENT
     # =====================================
 
     def process_order(
@@ -156,7 +138,6 @@ class TransactionService:
 
 
         ref_id = order["ref_id"]
-
 
 
         try:
@@ -184,11 +165,9 @@ class TransactionService:
             )
 
 
-
-            print("==============================")
             print("RESPONSE DIGIFLAZZ")
             print(response)
-            print("==============================")
+
 
 
             if not response:
@@ -212,7 +191,8 @@ class TransactionService:
                 return {
 
 
-                    "status": "FAILED",
+                    "status":
+                    "FAILED",
 
 
                     "message":
@@ -223,43 +203,24 @@ class TransactionService:
 
 
 
-
-
-
             status = digiflazz.get_status(response)
 
-
             message = digiflazz.get_message(response)
-
 
             sn = digiflazz.get_sn(response)
 
 
 
-
-            print("==============================")
             print("STATUS :", status)
             print("MESSAGE :", message)
             print("SN :", sn)
-            print("==============================")
 
 
-
-
-
-
-
-            # =========================
-            # SUCCESS
-            # =========================
 
             if status in [
 
-
                 "SUKSES",
-
                 "SUCCESS"
-
 
             ]:
 
@@ -282,7 +243,8 @@ class TransactionService:
                 return {
 
 
-                    "status": "SUCCESS",
+                    "status":
+                    "SUCCESS",
 
 
                     "message":
@@ -295,20 +257,10 @@ class TransactionService:
 
 
 
-
-
-
-            # =========================
-            # FAILED
-            # =========================
-
             elif status in [
 
-
                 "GAGAL",
-
                 "FAILED"
-
 
             ]:
 
@@ -331,7 +283,8 @@ class TransactionService:
                 return {
 
 
-                    "status": "FAILED",
+                    "status":
+                    "FAILED",
 
 
                     "message":
@@ -342,15 +295,6 @@ class TransactionService:
 
 
 
-
-
-
-
-
-
-            # =========================
-            # PENDING / PROCESSING
-            # =========================
 
             else:
 
@@ -378,15 +322,11 @@ class TransactionService:
 
 
                     "message":
-                    "Transaksi sedang diproses DigiFlazz"
+                    "Transaksi sedang diproses"
+
 
 
                 }
-
-
-
-
-
 
 
 
@@ -426,9 +366,6 @@ class TransactionService:
 
 
             }
-
-
-
 
 
 

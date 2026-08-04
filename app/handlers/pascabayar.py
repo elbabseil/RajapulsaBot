@@ -1,22 +1,36 @@
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 
+
 from app.services.catalog_service import catalog_service
-from app.keyboards.marketplace_keyboard import build_product_keyboard
-from app.keyboards.payment_keyboard import bayar_keyboard
+from app.services.order_service import order_service
+
+
+from app.keyboards.marketplace_keyboard import (
+    build_product_keyboard
+)
+
+
+from app.keyboards.payment_keyboard import (
+    bayar_keyboard
+)
+
 
 from app.states.pasca import PascaState
 
+
 from app.services.digiflazz_service import digiflazz
-from app.services.xendit_service import xendit
 
-from app.database.transaction_repository import transaction_repository
 
-import uuid
+from app.database.transaction_repository import (
+    transaction_repository
+)
 
 
 
 router = Router()
+
+
 
 
 
@@ -33,15 +47,21 @@ async def menu_pascabayar(
 
 
     products = catalog_service.get_products(
+
         "Pascabayar",
+
         None
+
     )
 
 
     if not products:
 
+
         await message.answer(
+
             "❌ Data tagihan kosong"
+
         )
 
         return
@@ -50,10 +70,18 @@ async def menu_pascabayar(
 
     await message.answer(
 
-        "🧾 Pilih Jenis Tagihan",
+"""
+🧾 LAYANAN PASCABAYAR
+
+Silakan pilih jenis tagihan:
+""",
 
         reply_markup=build_product_keyboard(
-            products[:30]
+
+            products[:30],
+
+            "postpaid"
+
         )
 
     )
@@ -61,12 +89,14 @@ async def menu_pascabayar(
 
 
 
+
+
 # =====================================================
-# PILIH PRODUK TAGIHAN
+# PILIH PRODUK
 # =====================================================
 
 @router.callback_query(
-    F.data.startswith("pasca:")
+    F.data.startswith("postpaid:")
 )
 async def pilih_tagihan(
 
@@ -78,22 +108,61 @@ async def pilih_tagihan(
 
 
     sku = callback.data.replace(
-        "pasca:",
+
+        "postpaid:",
+
         ""
+
     )
+
+
+    product = catalog_service.get_product_by_sku(
+
+        sku
+
+    )
+
+
+
+    if not product:
+
+
+        await callback.answer(
+
+            "Produk tidak ditemukan",
+
+            show_alert=True
+
+        )
+
+        return
+
+
 
 
     await state.update_data(
-        sku=sku
+
+        sku=sku,
+
+        product_name=product.get(
+            "product_name"
+        )
+
     )
+
 
 
     await state.set_state(
+
         PascaState.waiting_customer_no
+
     )
 
 
+
+
     await callback.message.answer(
+
 """
 🧾 TAGIHAN
 
@@ -104,8 +173,9 @@ Contoh:
 123456789012
 
 
-⚠️ Jangan masukkan nomor meter token.
+⚠️ Jangan masukkan nomor meter Token PLN.
 """
+
     )
 
 
@@ -114,8 +184,11 @@ Contoh:
 
 
 
+
+
+
 # =====================================================
-# INQUIRY TAGIHAN
+# INQUIRY
 # =====================================================
 
 @router.message(
@@ -133,17 +206,24 @@ async def proses_inquiry(
     customer_no = message.text.strip()
 
 
+
     if not customer_no.isdigit():
 
+
         await message.answer(
+
             "❌ ID pelanggan harus berupa angka"
+
         )
 
         return
 
 
 
+
+
     data = await state.get_data()
+
 
 
     sku = data.get(
@@ -151,10 +231,14 @@ async def proses_inquiry(
     )
 
 
+
     if not sku:
 
+
         await message.answer(
+
             "❌ Produk tidak ditemukan"
+
         )
 
         await state.clear()
@@ -163,28 +247,22 @@ async def proses_inquiry(
 
 
 
-    ref_id = (
 
-        "PASCA-"
 
-        +
-
-        str(uuid.uuid4())[:8]
-
+    temp_ref = "PASCA-" + str(
+        message.from_user.id
     )
+
 
 
 
     await message.answer(
+
         "🔎 Mengecek tagihan..."
+
     )
 
 
-
-    print("==============================")
-    print("PLN PASCA SKU :", sku)
-    print("CUSTOMER NO   :", customer_no)
-    print("==============================")
 
 
 
@@ -194,70 +272,21 @@ async def proses_inquiry(
 
         sku,
 
-        ref_id
+        temp_ref
 
     )
 
 
-
-    print("==============================")
-    print("DIGIFLAZZ RESPONSE")
-    print(hasil)
-    print("==============================")
 
 
 
     if not hasil:
 
-        await message.answer(
-            "❌ Gagal menghubungi Digiflazz"
-        )
-
-        return
-
-
-
-    response = hasil.get(
-        "data",
-        {}
-    )
-
-
-
-    nama = response.get(
-        "customer_name",
-        "-"
-    )
-
-
-    harga = int(
-        response.get(
-            "price",
-            0
-        )
-    )
-
-
-    admin = int(
-        response.get(
-            "admin",
-            0
-        )
-    )
-
-
-    total = harga + admin
-
-
-
-    if total <= 0:
 
         await message.answer(
-"""
-❌ Tagihan tidak ditemukan.
 
-Pastikan ID pelanggan benar.
-"""
+            "❌ Gagal menghubungi DigiFlazz"
+
         )
 
         await state.clear()
@@ -267,28 +296,146 @@ Pastikan ID pelanggan benar.
 
 
 
-    # ================================
-    # SIMPAN TRANSAKSI
-    # ================================
+
+
+    response = hasil.get(
+
+        "data",
+
+        {}
+
+    )
+
+
+
+
+
+    nama = response.get(
+
+        "customer_name",
+
+        "-"
+
+    )
+
+
+
+    harga = int(
+
+        response.get(
+
+            "price",
+
+            0
+
+        )
+
+    )
+
+
+
+    admin = int(
+
+        response.get(
+
+            "admin",
+
+            0
+
+        )
+
+    )
+
+
+
+    total = harga + admin
+
+
+
+
+
+    if total <= 0:
+
+
+        await message.answer(
+
+"""
+❌ Tagihan tidak ditemukan.
+
+Pastikan ID pelanggan benar.
+"""
+
+        )
+
+        await state.clear()
+
+        return
+
+
+
+
+
+
+    # =====================================
+    # CREATE ORDER
+    # =====================================
+
+
+    order = order_service.create_order(
+
+        customer_no=customer_no,
+
+        buyer_sku_code=sku,
+
+        telegram_id=message.from_user.id
+
+    )
+
+
+
+
+    if order.get("status") == "FAILED":
+
+
+        await message.answer(
+
+            "❌ Gagal membuat transaksi"
+
+        )
+
+        await state.clear()
+
+        return
+
+
+
+
+    ref_id = order["ref_id"]
+
+
+
+
+
 
 
     transaction_repository.create(
 
-        trx_id=ref_id,
+        ref_id,
 
-        telegram_id=str(
-            message.from_user.id
-        ),
+        message.chat.id,
 
-        product_code=sku,
+        sku,
 
-        product_name=nama,
+        nama,
 
-        customer_no=customer_no,
+        customer_no,
 
-        price=total
+        total
 
     )
+
+
+
 
 
 
@@ -323,140 +470,21 @@ Total Bayar:
 Rp {total:,}
 
 
-ID:
+🆔 ID:
 {ref_id}
 
+
+Silakan tekan BAYAR SEKARANG.
 """,
 
-reply_markup=bayar_keyboard(
-    ref_id
-)
+        reply_markup=bayar_keyboard(
 
-    )
+            ref_id
 
-
-
-
-
-
-# =====================================================
-# BUAT QRIS
-# =====================================================
-
-@router.callback_query(
-    F.data.startswith("bayar:")
-)
-async def bayar_tagihan(
-
-    callback: types.CallbackQuery,
-
-    state: FSMContext
-
-):
-
-
-    trx_id = callback.data.split(":")[1]
-
-
-
-    trx = transaction_repository.get_by_trx_id(
-        trx_id
-    )
-
-
-    if not trx:
-
-
-        await callback.message.answer(
-            "❌ Transaksi tidak ditemukan"
         )
 
-        await callback.answer()
-
-        return
-
-
-
-
-    price = trx["price"]
-
-
-
-    await callback.message.answer(
-        "💳 Membuat QRIS..."
     )
-
-
-
-    qris = xendit.create_qris(
-
-        trx_id,
-
-        price
-
-    )
-
-
-
-    if not qris:
-
-
-        await callback.message.answer(
-            "❌ Gagal membuat QRIS"
-        )
-
-        await callback.answer()
-
-        return
-
-
-
-
-    transaction_repository.save_qris(
-
-        trx_id,
-
-        qris.get("id"),
-
-        qris.get("qr_string")
-
-    )
-
-
-
-    qr_string = qris.get(
-        "qr_string"
-    )
-
-
-    await callback.message.answer(
-
-f"""
-💳 PEMBAYARAN TAGIHAN
-
-
-ID:
-{trx_id}
-
-
-Total:
-Rp {price:,}
-
-
-Silakan scan QRIS.
-"""
-
-    )
-
-
-    if qr_string:
-
-        await callback.message.answer(
-            qr_string
-        )
 
 
 
     await state.clear()
-
-    await callback.answer()

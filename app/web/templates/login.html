@@ -1,180 +1,407 @@
 {% extends "layout.html" %}
 
+
 {% block title %}
-Login - RajaPulsa
+Login Admin - RajaPulsa
 {% endblock %}
 
-{% block head %}
-<style>
 
-body{
-    background:linear-gradient(135deg,#172554,#2563eb);
-}
-
-.wrapper{
-
-    display:block;
-
-}
-
-.sidebar{
-
-    display:none;
-
-}
-
-.main{
-
-    margin:0;
-
-}
-
-.topbar{
-
-    display:none;
-
-}
-
-.content{
-
-    min-height:100vh;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-}
-
-.login-card{
-
-    width:420px;
-
-    background:#fff;
-
-    border-radius:18px;
-
-    padding:40px;
-
-    box-shadow:0 20px 50px rgba(0,0,0,.25);
-
-}
-
-.login-logo{
-
-    font-size:56px;
-
-    text-align:center;
-
-}
-
-.login-title{
-
-    text-align:center;
-
-    font-size:28px;
-
-    font-weight:700;
-
-    margin-top:10px;
-
-}
-
-.login-subtitle{
-
-    text-align:center;
-
-    color:#6b7280;
-
-    margin-bottom:30px;
-
-}
-
-</style>
-{% endblock %}
 
 {% block content %}
 
+
+<style>
+
+body{
+
+background:
+linear-gradient(
+135deg,
+#020617,
+#1d4ed8
+);
+
+}
+
+
+
+.sidebar,
+.topbar{
+
+display:none !important;
+
+}
+
+
+
+.main-content{
+
+width:100%;
+
+}
+
+
+
+.content{
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+
+
+
+.login-card{
+
+width:420px;
+
+background:white;
+
+padding:45px;
+
+border-radius:25px;
+
+box-shadow:
+
+0 25px 60px
+
+rgba(0,0,0,.35);
+
+}
+
+
+
+.logo-login{
+
+text-align:center;
+
+}
+
+
+
+.logo-login .icon{
+
+font-size:70px;
+
+}
+
+
+
+.logo-login h1{
+
+font-size:32px;
+
+margin:10px 0;
+
+font-weight:800;
+
+}
+
+
+
+.logo-login p{
+
+color:#64748b;
+
+}
+
+
+
+
+.input-group{
+
+margin-bottom:20px;
+
+}
+
+
+
+.input-group label{
+
+display:block;
+
+font-weight:600;
+
+margin-bottom:8px;
+
+}
+
+
+
+.input-group input{
+
+
+width:100%;
+
+padding:14px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-size:15px;
+
+
+}
+
+
+
+
+.input-group input:focus{
+
+
+outline:none;
+
+border-color:#2563eb;
+
+}
+
+
+
+button{
+
+
+width:100%;
+
+padding:15px;
+
+
+border:none;
+
+
+border-radius:12px;
+
+
+background:#2563eb;
+
+
+color:white;
+
+
+font-size:16px;
+
+
+font-weight:bold;
+
+
+cursor:pointer;
+
+
+}
+
+
+
+
+button:hover{
+
+
+background:#1d4ed8;
+
+
+}
+
+
+
+
+.error{
+
+
+margin-top:20px;
+
+
+padding:12px;
+
+
+background:#fee2e2;
+
+
+color:#991b1b;
+
+
+border-radius:10px;
+
+
+text-align:center;
+
+
+}
+
+
+
+.footer{
+
+
+margin-top:30px;
+
+
+text-align:center;
+
+
+font-size:13px;
+
+
+color:#94a3b8;
+
+
+}
+
+
+</style>
+
+
+
+
 <div class="login-card">
 
-    <div class="login-logo">
-        ⚡
-    </div>
 
-    <div class="login-title">
-        RajaPulsa
-    </div>
 
-    <div class="login-subtitle">
-        Admin Panel
-    </div>
+<div class="logo-login">
 
-    <form action="/login" method="post">
 
-        <div class="mb-3">
+<div class="icon">
 
-            <label class="form-label">
-                Username
-            </label>
-
-            <input
-                type="text"
-                name="username"
-                class="form-control"
-                placeholder="Masukkan username"
-                required
-            >
-
-        </div>
-
-        <div class="mb-4">
-
-            <label class="form-label">
-                Password
-            </label>
-
-            <input
-                type="password"
-                name="password"
-                class="form-control"
-                placeholder="Masukkan password"
-                required
-            >
-
-        </div>
-
-        <button
-            class="btn btn-primary w-100"
-            type="submit">
-
-            <i class="bi bi-box-arrow-in-right"></i>
-            Login
-
-        </button>
-
-    </form>
-
-    {% if error %}
-
-    <div class="alert alert-danger mt-4">
-
-        {{ error }}
-
-    </div>
-
-    {% endif %}
-
-    <hr>
-
-    <div class="text-center text-muted">
-
-        RajaPulsa Admin Panel<br>
-
-        Version 1.0
-
-    </div>
+⚡
 
 </div>
+
+
+<h1>
+
+RajaPulsa
+
+</h1>
+
+
+<p>
+
+FlashPay Admin Panel
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<form method="POST" action="/admin/login">
+
+
+
+<div class="input-group">
+
+
+<label>
+
+Username
+
+</label>
+
+
+<input
+
+type="text"
+
+name="username"
+
+placeholder="Username"
+
+required
+
+>
+
+
+</div>
+
+
+
+
+
+<div class="input-group">
+
+
+<label>
+
+Password
+
+</label>
+
+
+<input
+
+type="password"
+
+name="password"
+
+placeholder="Password"
+
+required
+
+>
+
+
+</div>
+
+
+
+
+<button type="submit">
+
+
+LOGIN ADMIN
+
+
+</button>
+
+
+
+</form>
+
+
+
+
+
+{% if error %}
+
+
+<div class="error">
+
+{{ error }}
+
+</div>
+
+
+{% endif %}
+
+
+
+
+
+
+
+<div class="footer">
+
+RajaPulsa System
+
+<br>
+
+Version 1.0
+
+</div>
+
+
+
+</div>
+
+
+
 
 {% endblock %}

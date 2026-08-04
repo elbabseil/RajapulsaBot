@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+Produk FlashPay RajaPulsa
+</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+
+<div class="logo">
+FlashPay RajaPulsa
+</div>
+
+
+<nav>
+
+<a href="/">
+Home
+</a>
+
+
+<a href="/layanan">
+Layanan
+</a>
+
+
+<a href="/produk">
+Produk
+</a>
+
+
+<a href="/merchant">
+Merchant
+</a>
+
+
+<a href="/kontak">
+Kontak
+</a>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<section class="category-page">
+
+
+<h1 id="category-title">
+
+Produk
+
+</h1>
+
+
+
+<p id="category-description">
+
+Memuat produk...
+
+</p>
+
+
+
+
+
+
+<div id="product-container">
+
+
+</div>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+<footer>
+
+
+<p>
+© 2026 FlashPay RajaPulsa
+</p>
+
+
+<p>
+Platform PPOB Digital Indonesia
+</p>
+
+
+</footer>
+
+
+
+
+
+
+
+
+
+
+<script>
+
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+
+
+const category =
+params.get("category");
+
+
+
+
+
+document.getElementById(
+"category-title"
+).innerHTML =
+
+
+`
+Produk ${category}
+`;
+
+
+
+
+
+document.getElementById(
+"category-description"
+).innerHTML =
+
+
+`
+Daftar harga layanan ${category}
+`;
+
+
+
+
+
+
+
+
+async function loadProducts(){
+
+
+const container =
+document.getElementById(
+"product-container"
+);
+
+
+
+try{
+
+
+const response =
+await fetch(
+
+"/public/products/category/"
++
+encodeURIComponent(category)
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+
+if(
+data.status !== "success"
+){
+
+throw new Error();
+
+}
+
+
+
+
+
+
+// kelompok berdasarkan operator
+
+let providers = {};
+
+
+
+data.products.forEach(product => {
+
+
+
+let brand =
+product.brand || "LAINNYA";
+
+
+
+if(
+!providers[brand]
+){
+
+providers[brand] = [];
+
+}
+
+
+
+providers[brand].push(product);
+
+
+
+});
+
+
+
+
+
+
+
+
+
+Object.keys(providers).forEach(
+brand => {
+
+
+
+let box =
+document.createElement(
+"div"
+);
+
+
+
+box.className =
+"provider-table";
+
+
+
+
+
+let html = `
+
+
+
+<div class="provider-title">
+
+${brand}
+
+</div>
+
+
+
+
+
+<div class="product-header">
+
+
+<div>
+Produk
+</div>
+
+
+<div>
+Harga
+</div>
+
+
+<div>
+Aksi
+</div>
+
+
+
+</div>
+
+
+
+
+`;
+
+
+
+
+
+
+
+providers[brand].forEach(
+product => {
+
+
+
+html += `
+
+
+
+<div class="product-row">
+
+
+
+<div class="product-name">
+
+${product.name}
+
+</div>
+
+
+
+
+<div class="product-price">
+
+Rp ${Number(product.price)
+.toLocaleString("id-ID")}
+
+</div>
+
+
+
+
+<div>
+
+<a
+
+href="/checkout?id=${product.id}"
+
+class="small-buy-button"
+
+>
+
+Beli
+
+</a>
+
+
+</div>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+
+
+
+
+box.innerHTML =
+html;
+
+
+
+container.appendChild(
+box
+);
+
+
+
+
+});
+
+
+
+
+
+
+}
+
+catch(error){
+
+
+container.innerHTML = `
+
+
+<div class="error-box">
+
+Produk tidak tersedia
+
+</div>
+
+
+`;
+
+
+console.log(error);
+
+
+}
+
+
+}
+
+
+
+
+
+loadProducts();
+
+
+
+
+</script>
+
+
+
+
+</body>
+
+</html>

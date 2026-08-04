@@ -2,9 +2,17 @@ from aiogram import Bot, Dispatcher
 import config
 
 
+# =====================================
+# TELEGRAM BOT INSTANCE
+# =====================================
+
 bot = Bot(
-    config.TELEGRAM_BOT_TOKEN
+    token=config.TELEGRAM_BOT_TOKEN
 )
 
+
+# =====================================
+# DISPATCHER
+# =====================================
 
 dp = Dispatcher()

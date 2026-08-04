@@ -174,6 +174,108 @@ class OrderService:
         }
 
 
+    # =========================
+    # CREATE ORDER WEBSITE
+    # =========================
+
+    def create_order_by_product_id(
+        self,
+        customer_no,
+        product_id
+    ):
+
+
+        products = product_repository.get_all()
+
+
+        product = None
+
+
+        for p in products:
+
+            if p["id"] == product_id:
+
+                product = p
+                break
+
+
+
+        if not product:
+
+            return {
+
+                "status": "FAILED",
+
+                "message": "Produk tidak ditemukan"
+
+            }
+
+
+
+        ref_id = (
+
+            "RP-"
+
+            + uuid.uuid4().hex[:8].upper()
+
+        )
+
+
+
+        product_name = (
+
+            product.get("product_name")
+
+            or product.get("name")
+
+        )
+
+
+        price = product.get("price")
+
+
+        buyer_sku_code = product.get(
+            "buyer_sku_code"
+        )
+
+
+
+        order_repository.save_order(
+
+            ref_id=ref_id,
+
+            customer_no=customer_no,
+
+            buyer_sku_code=buyer_sku_code,
+
+            product_name=product_name,
+
+            price=price,
+
+            status="PENDING",
+
+            message="Order website menunggu pembayaran",
+
+            sn=None,
+
+            telegram_id=None
+
+        )
+
+
+        return {
+
+            "status":"SUCCESS",
+
+            "ref_id":ref_id,
+
+            "product_name":product_name,
+
+            "price":price,
+
+            "customer_no":customer_no
+
+        }
 
 
 order_service = OrderService()

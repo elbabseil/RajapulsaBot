@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+Checkout | FlashPay RajaPulsa
+</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+
+<body>
+
+
+
+<header class="navbar">
+
+
+<div class="logo">
+
+FlashPay RajaPulsa
+
+</div>
+
+
+
+<nav>
+
+<a href="/">
+Home
+</a>
+
+<a href="/produk">
+Produk
+</a>
+
+<a href="/merchant">
+Merchant
+</a>
+
+<a href="/kontak">
+Kontak
+</a>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<section class="checkout-page">
+
+
+<h1>
+Checkout Produk
+</h1>
+
+
+
+<div id="product-detail">
+
+
+Memuat produk...
+
+
+</div>
+
+
+
+
+
+
+<div class="checkout-box">
+
+
+<h2>
+Data Pembelian
+</h2>
+
+
+
+<label>
+Nomor Tujuan
+</label>
+
+
+<input
+
+type="text"
+
+id="customer_no"
+
+placeholder="Masukkan nomor pelanggan"
+
+>
+
+
+
+
+<button
+
+onclick="createOrder()"
+
+>
+
+Bayar Sekarang
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<div id="result">
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<footer>
+
+
+<p>
+
+© 2026 FlashPay RajaPulsa
+
+</p>
+
+
+</footer>
+
+
+
+
+
+
+
+<script>
+
+
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+
+
+const product_id =
+params.get(
+"id"
+);
+
+
+
+
+
+let selectedProduct = null;
+
+
+
+
+
+
+
+
+async function loadProduct(){
+
+
+try{
+
+
+const response =
+await fetch(
+
+"/public/products/detail/"
++
+product_id
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+
+
+selectedProduct =
+data.product;
+
+
+
+
+
+document.getElementById(
+"product-detail"
+).innerHTML =
+
+
+
+`
+
+<div class="product-card">
+
+
+<h2>
+
+${selectedProduct.name}
+
+</h2>
+
+
+
+<p>
+
+${selectedProduct.brand || ""}
+
+</p>
+
+
+
+<h3>
+
+Rp ${Number(selectedProduct.price).toLocaleString("id-ID")}
+
+</h3>
+
+
+</div>
+
+`;
+
+
+
+
+}
+
+
+catch(error){
+
+
+document.getElementById(
+"product-detail"
+).innerHTML =
+
+`
+
+Produk tidak ditemukan
+
+`;
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+async function createOrder(){
+
+
+
+const customer_no =
+
+document.getElementById(
+"customer_no"
+).value;
+
+
+
+
+
+if(!customer_no){
+
+
+alert(
+"Nomor pelanggan wajib diisi"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+"/public/order",
+
+{
+
+
+method:"POST",
+
+
+headers:{
+
+
+"Content-Type":
+"application/json"
+
+
+},
+
+
+body:JSON.stringify({
+
+product_id:
+Number(product_id),
+
+
+customer_no:
+customer_no
+
+
+})
+
+
+}
+
+);
+
+
+
+
+
+
+const data =
+await response.json();
+
+
+
+
+
+
+
+document.getElementById(
+"result"
+).innerHTML =
+
+
+
+`
+
+<div class="success-box">
+
+
+<h3>
+Transaksi berhasil dibuat
+</h3>
+
+
+<p>
+
+ID Transaksi:
+
+<br>
+
+${data.order?.ref_id || "-"}
+
+</p>
+
+
+
+<p>
+
+Metode:
+
+${data.payment?.method || "QRIS"}
+
+</p>
+
+
+
+<p>
+
+Silakan lanjutkan pembayaran
+
+</p>
+
+
+
+</div>
+
+
+`;
+
+
+
+
+
+}
+
+catch(error){
+
+
+document.getElementById(
+"result"
+).innerHTML =
+
+
+`
+
+<div class="success-box">
+
+
+<h3>
+Transaksi berhasil dibuat
+</h3>
+
+
+
+<p>
+ID Transaksi:
+</p>
+
+
+<strong>
+
+${data.order?.ref_id || "-"}
+
+</strong>
+
+
+
+<br><br>
+
+
+
+<p>
+
+Produk:
+
+</p>
+
+
+<strong>
+
+${selectedProduct.name}
+
+</strong>
+
+
+
+<br><br>
+
+
+
+<a
+
+href="/payment?trx_id=${data.order?.ref_id}"
+
+class="buy-button"
+
+>
+
+Lanjut Pembayaran
+
+</a>
+
+
+
+</div>
+
+
+`;
+
+
+`
+
+<div class="error-box">
+
+Gagal membuat transaksi
+
+</div>
+
+
+`;
+
+
+
+console.log(error);
+
+
+}
+
+
+
+
+}
+
+
+
+
+
+loadProduct();
+
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

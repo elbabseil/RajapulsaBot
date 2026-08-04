@@ -49,22 +49,30 @@ document.addEventListener(
 
 
 
-                    data:[
+                data:[
+
+                    parseInt(
+                        canvas.dataset.total,
+                        10
+                    ) || 0,
+
+                    parseInt(
+                        canvas.dataset.pending,
+                        10
+                    ) || 0,
+
+                    parseInt(
+                        canvas.dataset.success,
+                        10
+                    ) || 0,
+
+                    parseInt(
+                        canvas.dataset.failed,
+                        10
+                    ) || 0
 
 
-                        window.totalTransaksi,
-
-
-                        window.totalPending,
-
-
-                        window.totalSuccess,
-
-
-                        window.totalFailed
-
-
-                    ]
+                ]
 
 
                 }]

@@ -7,10 +7,17 @@ import uuid
 
 
 from app.services.order_service import order_service
-from app.services.xendit_service import xendit
 from app.services.digiflazz_service import digiflazz
 
-from app.database.order_repository import order_repository
+
+from app.database.transaction_repository import (
+    transaction_repository
+)
+
+
+from app.keyboards.payment_keyboard import (
+    bayar_keyboard
+)
 
 
 
@@ -27,17 +34,14 @@ class PLNState(StatesGroup):
 
 
 
-
-# =====================================================
+# ==========================================
 # MENU PLN
-# =====================================================
+# ==========================================
 
 @router.message(
     F.text == "⚡ PLN"
 )
-async def pln_menu(
-    message: types.Message
-):
+async def pln_menu(message: types.Message):
 
 
     builder = InlineKeyboardBuilder()
@@ -58,82 +62,52 @@ async def pln_menu(
     builder.adjust(1)
 
 
-
     await message.answer(
-
-        """
-⚡ Layanan PLN
-
-Silakan pilih layanan:
-""",
-
+        "⚡ Layanan PLN",
         reply_markup=builder.as_markup()
-
     )
 
 
 
 
-
-# =====================================================
+# ==========================================
 # TOKEN PLN MENU
-# =====================================================
+# ==========================================
 
 @router.callback_query(
-    F.data == "pln_token"
+    F.data=="pln_token"
 )
 async def token_menu(
-    callback: types.CallbackQuery
+    callback:types.CallbackQuery
 ):
 
 
-    builder = InlineKeyboardBuilder()
+    builder=InlineKeyboardBuilder()
 
 
-
-    produk = [
+    for text,sku in [
 
         ("Rp 20.000","pln20"),
-
         ("Rp 50.000","pln50"),
-
         ("Rp 100.000","pln100"),
-
         ("Rp 1.000.000","pln1000")
 
-    ]
-
-
-
-    for nama,sku in produk:
+    ]:
 
 
         builder.button(
-
-            text=nama,
-
+            text=text,
             callback_data=f"token:{sku}"
-
         )
-
 
 
     builder.adjust(2)
 
 
-
     await callback.message.answer(
-
-        """
-🔋 Token PLN Prabayar
-
-Pilih nominal:
-""",
-
+        "🔋 Pilih Token PLN",
         reply_markup=builder.as_markup()
-
     )
-
 
 
     await callback.answer()
@@ -141,29 +115,23 @@ Pilih nominal:
 
 
 
-
-
-# =====================================================
+# ==========================================
 # PILIH TOKEN
-# =====================================================
+# ==========================================
 
 @router.callback_query(
     F.data.startswith("token:")
 )
 async def pilih_token(
-
-    callback: types.CallbackQuery,
-
+    callback:types.CallbackQuery,
     state:FSMContext
-
 ):
 
 
-    sku = callback.data.replace(
+    sku=callback.data.replace(
         "token:",
         ""
     )
-
 
 
     await state.update_data(
@@ -171,23 +139,18 @@ async def pilih_token(
     )
 
 
-
     await state.set_state(
         PLNState.waiting_meter
     )
 
 
-
     await callback.message.answer(
-
         """
-🔋 Token PLN
+🔋 TOKEN PLN
 
 Masukkan nomor meter PLN:
 """
-
     )
-
 
 
     await callback.answer()
@@ -195,26 +158,20 @@ Masukkan nomor meter PLN:
 
 
 
-
-
-
-# =====================================================
-# PROSES TOKEN PLN
-# =====================================================
+# ==========================================
+# PROSES TOKEN
+# ==========================================
 
 @router.message(
     PLNState.waiting_meter
 )
 async def proses_token(
-
     message:types.Message,
-
     state:FSMContext
-
 ):
 
 
-    data = await state.get_data()
+    data=await state.get_data()
 
 
     sku=data.get(
@@ -226,7 +183,7 @@ async def proses_token(
 
 
 
-    order = order_service.create_order(
+    order=order_service.create_order(
 
         customer_no=meter,
 
@@ -238,13 +195,11 @@ async def proses_token(
 
 
 
-    if order["status"]=="FAILED":
+    if order.get("status")=="FAILED":
 
 
         await message.answer(
-
             "❌ Produk PLN tidak ditemukan"
-
         )
 
         await state.clear()
@@ -253,14 +208,52 @@ async def proses_token(
 
 
 
-    await buat_qris(
+    ref_id=order["ref_id"]
 
-        message,
 
-        order
+    transaction_repository.create(
+
+        ref_id,
+
+        message.chat.id,
+
+        sku,
+
+        "Token PLN",
+
+        meter,
+
+        order.get(
+            "price",
+            0
+        )
 
     )
 
+
+
+    await message.answer(
+
+f"""
+✅ TRANSAKSI TOKEN PLN
+
+
+📱 Meter:
+{meter}
+
+
+🆔 ID:
+{ref_id}
+
+
+Silakan tekan BAYAR SEKARANG.
+""",
+
+reply_markup=bayar_keyboard(
+    ref_id
+)
+
+    )
 
 
     await state.clear()
@@ -268,44 +261,31 @@ async def proses_token(
 
 
 
-
-
-
-
-# =====================================================
-# TAGIHAN PLN PASCABAYAR
-# =====================================================
+# ==========================================
+# TAGIHAN PLN
+# ==========================================
 
 @router.callback_query(
     F.data=="pln_tagihan"
 )
 async def menu_tagihan(
-
     callback:types.CallbackQuery,
-
     state:FSMContext
-
 ):
 
 
     await state.set_state(
-
         PLNState.waiting_customer_number
-
     )
-
 
 
     await callback.message.answer(
-
         """
-🧾 Tagihan PLN Pascabayar
+🧾 TAGIHAN PLN
 
 Masukkan nomor pelanggan PLN:
 """
-
     )
-
 
 
     await callback.answer()
@@ -313,86 +293,49 @@ Masukkan nomor pelanggan PLN:
 
 
 
-
-
-# =====================================================
-# INQUIRY TAGIHAN PLN
-# =====================================================
+# ==========================================
+# INQUIRY PLN
+# ==========================================
 
 @router.message(
     PLNState.waiting_customer_number
 )
 async def proses_tagihan(
-
     message:types.Message,
-
     state:FSMContext
-
 ):
 
 
-    nomor = message.text.strip()
-
+    nomor=message.text.strip()
 
 
     await message.answer(
+        "🔎 Mengecek tagihan PLN..."
+    )
 
-        """
-🔎 Mengecek tagihan PLN...
-"""
+
+    ref_id="PLN-"+uuid.uuid4().hex[:8].upper()
+
+
+
+    hasil=digiflazz.inquiry_pasca(
+
+        nomor,
+
+        "PLN",
+
+        ref_id
 
     )
 
 
 
-    ref_id = (
-
-        "PLN-"
-
-        +
-
-        uuid.uuid4().hex[:8].upper()
-
-    )
-
-
-
-    response = digiflazz.inquiry_pasca(
-
-        customer_no=nomor,
-
-        buyer_sku_code="PLN",
-
-        ref_id=ref_id
-
-    )
-
-
-
-    print("====================")
-
-    print("[PLN INQUIRY RESPONSE]")
-
-    print(response)
-
-    print("====================")
-
-
-
-
-    if not response:
+    if not hasil:
 
 
         await message.answer(
-
-            """
-❌ Tagihan tidak ditemukan.
-
-Nomor pelanggan tidak tersedia pada DigiFlazz.
-"""
-
+            "❌ Data PLN tidak ditemukan"
         )
-
 
         await state.clear()
 
@@ -400,32 +343,41 @@ Nomor pelanggan tidak tersedia pada DigiFlazz.
 
 
 
-
-    data=response.get(
-
+    data=hasil.get(
         "data",
-
         {}
-
     )
 
 
 
     nama=data.get(
-
         "customer_name",
-
         "-"
+    )
 
+
+    total=int(
+        data.get(
+            "selling_price",
+            0
+        )
     )
 
 
 
-    jumlah=data.get(
+    transaction_repository.create(
 
-        "selling_price",
+        ref_id,
 
-        0
+        message.chat.id,
+
+        "PLN",
+
+        "PLN Pascabayar",
+
+        nomor,
+
+        total
 
     )
 
@@ -433,143 +385,34 @@ Nomor pelanggan tidak tersedia pada DigiFlazz.
 
     await message.answer(
 
-        f"""
+f"""
 🧾 TAGIHAN PLN
+
 
 Nama:
 {nama}
 
+
 Nomor:
 {nomor}
 
-Jumlah:
-Rp {jumlah:,}
+
+Total:
+Rp {total:,}
 
 
 ID:
 {ref_id}
-"""
+
+
+Silakan tekan BAYAR SEKARANG.
+""",
+
+reply_markup=bayar_keyboard(
+    ref_id
+)
 
     )
-
 
 
     await state.clear()
-
-
-
-
-
-
-
-
-# =====================================================
-# BUAT QRIS TOKEN
-# =====================================================
-
-async def buat_qris(
-
-    message,
-
-    order
-
-):
-
-
-    ref_id=order["ref_id"]
-
-    price=order["price"]
-
-
-
-    qris=xendit.create_qris(
-
-        ref_id,
-
-        price
-
-    )
-
-
-
-    if not qris:
-
-
-        await message.answer(
-
-            "❌ Gagal membuat QRIS"
-
-        )
-
-        return
-
-
-
-    qr_id=qris.get(
-
-        "id"
-
-    )
-
-
-
-    order_repository.update_qr_id(
-
-        ref_id,
-
-        qr_id
-
-    )
-
-
-
-    qr_string=qris.get(
-
-        "qr_string"
-
-    )
-
-
-
-    qr_url=(
-
-        "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
-
-        +
-
-        qr_string
-
-    )
-
-
-
-    await message.answer_photo(
-
-        qr_url,
-
-
-        caption=f"""
-
-🔋 TOKEN PLN
-
-Produk:
-{order['product_name']}
-
-
-Nomor Meter:
-{order['customer_no']}
-
-
-Harga:
-Rp {price:,}
-
-
-ID:
-{ref_id}
-
-
-Silakan bayar QRIS.
-
-"""
-
-    )

@@ -6,7 +6,6 @@ from datetime import datetime
 class TransactionRepository:
 
 
-
     def now(self):
 
         return datetime.now().strftime(
@@ -49,16 +48,13 @@ class TransactionRepository:
 
             transaction_status TEXT,
 
-
             qris_id TEXT,
 
             qr_string TEXT,
 
             payment_expired TEXT,
 
-
             digiflazz_response TEXT,
-
 
             created_at TEXT,
 
@@ -81,32 +77,21 @@ class TransactionRepository:
     # =====================================
 
     def create(
-
         self,
-
         trx_id,
-
         telegram_id,
-
         product_code,
-
         product_name,
-
         customer_no,
-
         price,
-
         payment_method="QRIS"
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-        cursor.execute(
+        conn.execute(
         """
 
         INSERT INTO transactions
@@ -127,16 +112,13 @@ class TransactionRepository:
 
         payment_method,
 
-
         payment_status,
 
         transaction_status,
 
-
         created_at,
 
         updated_at
-
 
         )
 
@@ -149,7 +131,7 @@ class TransactionRepository:
 
         trx_id,
 
-        telegram_id,
+        str(telegram_id),
 
         product_code,
 
@@ -161,11 +143,9 @@ class TransactionRepository:
 
         payment_method,
 
-
         "PENDING",
 
         "PENDING",
-
 
         self.now(),
 
@@ -182,16 +162,14 @@ class TransactionRepository:
 
 
 
+
     # =====================================
-    # GET TRANSACTION
+    # GET BY TRANSACTION ID
     # =====================================
 
     def get_by_trx_id(
-
         self,
-
         trx_id
-
     ):
 
 
@@ -199,9 +177,7 @@ class TransactionRepository:
 
 
         cursor = conn.execute(
-
         """
-
         SELECT *
 
         FROM transactions
@@ -209,10 +185,9 @@ class TransactionRepository:
         WHERE trx_id=?
 
         """,
-
-        (trx_id,)
-
-        )
+        (
+            trx_id,
+        ))
 
 
         row = cursor.fetchone()
@@ -229,54 +204,37 @@ class TransactionRepository:
 
 
     # =====================================
-    # SAVE QRIS DATA
+    # SAVE QRIS
     # =====================================
 
     def update_qris(
-
         self,
-
         trx_id,
-
         qris_id,
-
         qr_string,
-
         expired=None
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-
-        cursor.execute(
-
+        conn.execute(
         """
 
         UPDATE transactions
 
-
         SET
-
 
         qris_id=?,
 
-
         qr_string=?,
-
 
         payment_expired=?,
 
-
         updated_at=?
 
-
         WHERE trx_id=?
-
 
         """,
 
@@ -295,7 +253,6 @@ class TransactionRepository:
         ))
 
 
-
         conn.commit()
 
         conn.close()
@@ -304,35 +261,21 @@ class TransactionRepository:
 
 
 
-    # =====================================
-    # ALIAS SAVE QRIS
-    # =====================================
 
     def save_qris(
-
         self,
-
         trx_id,
-
         qris_id,
-
         qr_string,
-
         expired=None
-
     ):
 
 
         self.update_qris(
-
             trx_id,
-
             qris_id,
-
             qr_string,
-
             expired
-
         )
 
 
@@ -340,9 +283,63 @@ class TransactionRepository:
 
 
 
+    # =====================================
+    # PAYMENT WORKER
+    # QRIS BELUM DIBAYAR
+    # =====================================
+
+    def get_waiting_payment(self):
+
+
+        conn = get_connection()
+
+
+        cursor = conn.execute(
+        """
+
+        SELECT *
+
+        FROM transactions
+
+        WHERE
+
+        payment_status='PENDING'
+
+        AND
+
+        qris_id IS NOT NULL
+
+        ORDER BY id ASC
+
+        """
+
+        )
+
+
+        rows = cursor.fetchall()
+
+
+        conn.close()
+
+
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
+
+
+
 
     # =====================================
-    # PAYMENT WORKER QUEUE
+    # SUDAH BAYAR
+    # LANJUT DIGIFLAZZ
     # =====================================
 
     def get_paid_pending(self):
@@ -352,27 +349,22 @@ class TransactionRepository:
 
 
         cursor = conn.execute(
-
         """
 
         SELECT *
 
         FROM transactions
 
-
         WHERE
 
         payment_status='PAID'
 
-
         AND
-
 
         transaction_status='PENDING'
 
 
         ORDER BY id ASC
-
 
         """
 
@@ -404,32 +396,21 @@ class TransactionRepository:
     # =====================================
 
     def update_status(
-
         self,
-
         trx_id,
-
         payment_status=None,
-
         transaction_status=None,
-
         response=None
-
     ):
 
 
         conn = get_connection()
 
-        cursor = conn.cursor()
 
-
-
-        cursor.execute(
-
+        conn.execute(
         """
 
         UPDATE transactions
-
 
         SET
 
@@ -481,16 +462,38 @@ class TransactionRepository:
 
 
 
+
     # =====================================
-    # WORKER SET PROCESSING
+    # PAYMENT SUCCESS
+    # =====================================
+
+    def update_payment_paid(
+        self,
+        trx_id
+    ):
+
+
+        self.update_status(
+
+            trx_id,
+
+            payment_status="PAID"
+
+        )
+
+
+
+
+
+
+
+    # =====================================
+    # PROCESSING
     # =====================================
 
     def mark_processing(
-
         self,
-
         trx_id
-
     ):
 
 
@@ -506,18 +509,16 @@ class TransactionRepository:
 
 
 
+
+
     # =====================================
-    # WORKER SUCCESS
+    # SUCCESS
     # =====================================
 
     def mark_success(
-
         self,
-
         trx_id,
-
         response=None
-
     ):
 
 
@@ -534,8 +535,10 @@ class TransactionRepository:
 
 
 
+
+
     # =====================================
-    # WORKER FAILED
+    # FAILED
     # =====================================
 
     def mark_failed(
@@ -544,15 +547,25 @@ class TransactionRepository:
         response=None
     ):
 
+
         self.update_status(
+
             trx_id,
+
             transaction_status="FAILED",
+
             response=response
+
         )
 
 
+
+
+
+
+
     # =====================================
-    # RIWAYAT TRANSAKSI USER
+    # USER HISTORY
     # =====================================
 
     def get_user_transactions(
@@ -561,25 +574,53 @@ class TransactionRepository:
         limit=20
     ):
 
+
         conn = get_connection()
 
+
         cursor = conn.execute(
-            """
-            SELECT *
-            FROM transactions
-            WHERE telegram_id=?
-            ORDER BY id DESC
-            LIMIT ?
-            """,
-            (str(telegram_id), limit)
-        )
+        """
+
+        SELECT *
+
+        FROM transactions
+
+        WHERE telegram_id=?
+
+        ORDER BY id DESC
+
+        LIMIT ?
+
+        """,
+
+        (
+
+        str(telegram_id),
+
+        limit
+
+        ))
+
 
         rows = cursor.fetchall()
 
+
         conn.close()
 
-        return [dict(row) for row in rows]
+
+
+        return [
+
+            dict(row)
+
+            for row in rows
+
+        ]
+
+
+
 
 
 transaction_repository = TransactionRepository()
+
 transaction_repository.create_table()

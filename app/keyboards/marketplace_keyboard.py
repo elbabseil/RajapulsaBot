@@ -3,10 +3,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 # ==========================================
-# CATEGORY KEYBOARD
+# CATEGORY
 # ==========================================
 
-def build_category_keyboard(categories):
+def build_category_keyboard(
+    categories,
+    product_type="prepaid"
+):
 
     builder = InlineKeyboardBuilder()
 
@@ -17,25 +20,29 @@ def build_category_keyboard(categories):
 
             text=category,
 
-            callback_data=f"category:{category}"
+            callback_data=(
+                f"category:{product_type}:{category}"
+            )
 
         )
 
 
     builder.adjust(2)
 
-
     return builder.as_markup()
 
 
 
 
-
 # ==========================================
-# BRAND KEYBOARD
+# BRAND
 # ==========================================
 
-def build_brand_keyboard(brands):
+def build_brand_keyboard(
+    brands,
+    product_type,
+    category
+):
 
     builder = InlineKeyboardBuilder()
 
@@ -46,35 +53,38 @@ def build_brand_keyboard(brands):
 
             text=brand,
 
-            callback_data=f"brand:{brand}"
+            callback_data=(
+                f"brand:{product_type}:{category}:{brand}"
+            )
 
         )
 
 
     builder.adjust(2)
 
-
     return builder.as_markup()
 
 
 
 
-
 # ==========================================
-# PRODUCT KEYBOARD
-# PREPAID + POSTPAID
+# PRODUCT
 # ==========================================
 
-def build_product_keyboard(products):
+def build_product_keyboard(
+    products,
+    product_type="prepaid"
+):
+
 
     builder = InlineKeyboardBuilder()
 
 
 
-    for p in products:
+    for product in products:
 
 
-        sku = p.get(
+        sku = product.get(
             "buyer_sku_code"
         )
 
@@ -84,64 +94,48 @@ def build_product_keyboard(products):
 
 
 
-        product_name = p.get(
-
+        name = product.get(
             "product_name",
-
             "Produk"
-
         )
-
-
-
-        service_type = str(
-
-            p.get(
-                "service_type",
-                ""
-            )
-
-        ).upper()
-
 
 
         price = int(
-
-            p.get(
+            product.get(
                 "price",
                 0
             )
-
         )
 
 
 
-        # ==================================
-        # POSTPAID
-        # ==================================
-
-        if service_type == "POSTPAID":
+        if product_type == "postpaid":
 
 
-            text = product_name
+            text = name
 
 
+            callback = (
+                f"postpaid:{sku}"
+            )
 
-        # ==================================
-        # PREPAID
-        # ==================================
 
         else:
 
 
-            text = product_name
+            text = name
 
 
-            if price > 0:
+            if price:
 
                 text += (
-                    f" | Rp {price:,}"
+                    f"\nRp {price:,}"
                 )
+
+
+            callback = (
+                f"prepaid:{sku}"
+            )
 
 
 
@@ -149,7 +143,7 @@ def build_product_keyboard(products):
 
             text=text,
 
-            callback_data=f"product:{sku}"
+            callback_data=callback
 
         )
 

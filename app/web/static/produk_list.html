@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+Produk FlashPay RajaPulsa
+</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+<div class="logo">
+FlashPay RajaPulsa
+</div>
+
+
+<nav>
+
+<a href="/">
+Home
+</a>
+
+<a href="/produk">
+Produk
+</a>
+
+<a href="/merchant">
+Merchant
+</a>
+
+<a href="/kontak">
+Kontak
+</a>
+
+
+</nav>
+
+</header>
+
+
+
+
+<main class="container">
+
+
+<h1 id="title">
+
+Produk
+
+</h1>
+
+
+<p class="subtitle">
+
+Pilih produk terbaik untuk kebutuhan Anda
+
+</p>
+
+
+
+
+<div class="product-toolbar">
+
+
+<input
+
+id="search"
+
+placeholder="Cari produk..."
+
+>
+
+
+<select id="brand">
+
+<option value="">
+Semua Brand
+</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div
+
+id="product-container"
+
+class="product-grid"
+
+
+>
+
+
+</div>
+
+
+
+
+</main>
+
+
+
+
+
+
+
+<script>
+
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+
+const category =
+params.get("category");
+
+
+
+const container =
+document.getElementById(
+"product-container"
+);
+
+
+const title =
+document.getElementById(
+"title"
+);
+
+
+
+let products=[];
+
+
+
+title.innerHTML =
+"Produk " + category;
+
+
+
+async function loadProducts(){
+
+
+try{
+
+
+const response =
+await fetch(
+
+"/public/products/category/"
++
+encodeURIComponent(category)
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+products =
+data.products;
+
+
+
+renderProducts(products);
+
+
+loadBrands(products);
+
+
+}
+
+
+catch(error){
+
+
+container.innerHTML = `
+
+<div class="error-box">
+
+Gagal mengambil produk
+
+</div>
+
+`;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+function renderProducts(items){
+
+
+
+container.innerHTML="";
+
+
+
+items.forEach(product=>{
+
+
+const card =
+document.createElement(
+"div"
+);
+
+
+
+card.className =
+"product-card";
+
+
+
+card.innerHTML = `
+
+
+<h3>
+
+${product.name}
+
+</h3>
+
+
+<p class="brand">
+
+${product.brand}
+
+</p>
+
+
+
+<h2>
+
+Rp ${Number(product.price).toLocaleString("id-ID")}
+
+</h2>
+
+
+
+<button
+
+onclick="buyProduct(${product.id})"
+
+>
+
+Beli Sekarang
+
+</button>
+
+
+`;
+
+
+
+container.appendChild(card);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+function loadBrands(items){
+
+
+const select =
+document.getElementById(
+"brand"
+);
+
+
+const brands =
+[
+...new Set(
+items.map(
+x=>x.brand
+)
+)
+];
+
+
+
+brands.forEach(
+brand=>{
+
+
+select.innerHTML += `
+
+<option value="${brand}">
+
+${brand}
+
+</option>
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+
+document
+.getElementById("brand")
+.onchange=function(){
+
+
+const value=this.value;
+
+
+if(value){
+
+renderProducts(
+
+products.filter(
+p=>p.brand==value
+)
+
+);
+
+
+}else{
+
+
+renderProducts(products);
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+document
+.getElementById("search")
+.onkeyup=function(){
+
+
+
+const keyword =
+this.value.toLowerCase();
+
+
+
+renderProducts(
+
+products.filter(
+p=>
+
+p.name.toLowerCase()
+.includes(keyword)
+
+)
+
+
+);
+
+
+
+};
+
+
+
+
+
+
+function buyProduct(id){
+
+
+window.location.href =
+
+"/checkout?product_id="
++
+id;
+
+
+}
+
+
+
+
+loadProducts();
+
+
+
+</script>
+
+
+</body>
+
+
+</html>

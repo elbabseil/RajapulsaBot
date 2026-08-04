@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+Produk FlashPay RajaPulsa
+</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+
+<body>
+
+
+
+<header class="navbar">
+
+
+<div class="logo">
+
+FlashPay RajaPulsa
+
+</div>
+
+
+
+<nav>
+
+<a href="/">
+Home
+</a>
+
+<a href="/layanan">
+Layanan
+</a>
+
+<a href="/produk">
+Produk
+</a>
+
+<a href="/merchant">
+Merchant
+</a>
+
+<a href="/kontak">
+Kontak
+</a>
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<section class="hero">
+
+
+<h1>
+
+Produk Digital FlashPay RajaPulsa
+
+</h1>
+
+
+<p>
+
+Pilih layanan PPOB sesuai kebutuhan Anda
+
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="products">
+
+
+<h2>
+
+Kategori Produk
+
+</h2>
+
+
+
+
+<div id="product-container"
+class="category-grid">
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<footer>
+
+
+<p>
+
+© 2026 FlashPay RajaPulsa
+
+</p>
+
+
+<p>
+
+Platform PPOB Digital Indonesia
+
+</p>
+
+
+</footer>
+
+
+
+
+
+
+
+
+<script>
+
+
+
+function loadCategories(){
+
+
+
+const container =
+
+document.getElementById(
+"product-container"
+);
+
+
+
+const categories = [
+
+
+{
+
+name:"Pulsa",
+
+icon:"📱",
+
+desc:"Pulsa semua operator",
+
+category:"Pulsa"
+
+
+},
+
+
+
+{
+
+name:"Paket Data",
+
+icon:"🌐",
+
+desc:"Internet semua operator",
+
+category:"Data"
+
+
+},
+
+
+
+{
+
+name:"Token PLN",
+
+icon:"⚡",
+
+desc:"Token listrik prabayar",
+
+category:"PLN"
+
+
+},
+
+
+
+{
+
+name:"Voucher Game",
+
+icon:"🎮",
+
+desc:"Game digital favorit",
+
+category:"Games"
+
+
+},
+
+
+
+{
+
+name:"Tagihan",
+
+icon:"🧾",
+
+desc:"PLN Pascabayar dan PPOB",
+
+category:"Pascabayar"
+
+
+},
+
+
+
+{
+
+name:"Voucher",
+
+icon:"🎁",
+
+desc:"Voucher digital",
+
+category:"Voucher"
+
+
+}
+
+
+
+];
+
+
+
+
+
+container.innerHTML="";
+
+
+
+
+
+categories.forEach(item=>{
+
+
+const card =
+document.createElement(
+"div"
+);
+
+
+
+card.className =
+"service-card";
+
+
+
+
+
+card.innerHTML = `
+
+
+
+<div class="service-icon">
+
+${item.icon}
+
+</div>
+
+
+
+
+<h3>
+
+${item.name}
+
+</h3>
+
+
+
+<p>
+
+${item.desc}
+
+</p>
+
+
+
+
+<a
+
+href="/produk/kategori?name=${item.category}"
+
+class="buy-button">
+
+Lihat Produk
+
+</a>
+
+
+
+`;
+
+
+
+
+container.appendChild(card);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+loadCategories();
+
+
+
+</script>
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,4139 @@
+/* =====================================================
+   FLASH PAY RAJAPULSA
+   PREMIUM PPOB WEBSITE STYLE
+   FILE : app/web/static/style.css
+
+   BAGIAN 1 / 8
+===================================================== */
+
+
+/* ===============================
+   RESET
+================================ */
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+
+
+body{
+
+    font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+    background:#f8fafc;
+
+    color:#1e293b;
+
+    line-height:1.6;
+
+}
+
+
+
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+
+
+img{
+
+    max-width:100%;
+
+}
+
+
+
+
+/* ===============================
+   COLOR SYSTEM
+================================ */
+
+
+:root{
+
+
+    --primary:
+    #8b8307;
+
+
+    --primary-dark:
+    #1d4ed8;
+
+
+    --secondary:
+    #0e50c3;
+
+
+    --success:
+    #16a34a;
+
+
+    --warning:
+    #f59e0b;
+
+
+    --danger:
+    #dc2626;
+
+
+    --light:
+    #f8fafc;
+
+
+    --white:
+    #ffffff;
+
+
+    --gray:
+    #64748b;
+
+
+    --border:
+    #e2e8f0;
+
+
+
+    --shadow:
+
+    0 10px 30px rgba(15,23,42,.08);
+
+
+
+    --radius:
+
+    18px;
+
+
+}
+
+
+
+/* ===============================
+   NAVBAR
+================================ */
+
+
+.navbar{
+
+
+    width:100%;
+
+    height:80px;
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+
+    padding:
+
+    0 60px;
+
+
+    background:
+
+    rgba(255,255,255,.95);
+
+
+    backdrop-filter:
+
+    blur(12px);
+
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+
+    border-bottom:
+
+    1px solid var(--border);
+
+
+}
+
+
+
+
+.logo{
+
+
+    font-size:26px;
+
+
+    font-weight:800;
+
+
+    color:var(--primary);
+
+
+    letter-spacing:.5px;
+
+
+}
+
+
+
+
+.navbar nav{
+
+
+    display:flex;
+
+
+    gap:35px;
+
+
+}
+
+
+
+
+.navbar nav a{
+
+
+    font-weight:600;
+
+
+    color:#334155;
+
+
+    transition:.3s;
+
+
+    position:relative;
+
+
+}
+
+
+
+.navbar nav a:hover{
+
+
+    color:var(--primary);
+
+
+}
+
+
+
+.navbar nav a::after{
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    bottom:-8px;
+
+
+    left:0;
+
+
+    width:0;
+
+
+    height:3px;
+
+
+    background:var(--primary);
+
+
+    border-radius:10px;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.navbar nav a:hover::after{
+
+
+    width:100%;
+
+
+}
+
+
+
+
+
+/* ===============================
+   HERO
+================================ */
+
+
+
+.hero{
+
+
+    min-height:420px;
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    text-align:center;
+
+
+    padding:60px 20px;
+
+
+    background:
+
+
+    linear-gradient(
+
+        135deg,
+
+        #2563eb,
+
+        #0f172a
+
+    );
+
+
+    color:white;
+
+
+}
+
+
+
+
+.hero h1{
+
+
+    font-size:48px;
+
+
+    font-weight:800;
+
+
+    max-width:850px;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+.hero p{
+
+
+    font-size:20px;
+
+
+    opacity:.9;
+
+
+    max-width:650px;
+
+
+}
+
+
+
+
+/* ===============================
+   SECTION
+================================ */
+
+
+section{
+
+
+    width:100%;
+
+
+}
+
+
+
+.products{
+
+
+    padding:
+
+    70px 60px;
+
+
+}
+
+
+
+.products h2{
+
+
+    text-align:center;
+
+
+    font-size:32px;
+
+
+    margin-bottom:40px;
+
+
+    color:var(--secondary);
+
+
+}
+
+
+
+
+
+/* ===============================
+   CATEGORY GRID
+================================ */
+
+
+.category-grid{
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(3,1fr);
+
+
+    gap:30px;
+
+
+    max-width:1100px;
+
+
+    margin:auto;
+
+
+}
+
+
+
+
+.category-card{
+
+
+    background:white;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    padding:35px;
+
+
+    text-align:center;
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+    border:
+
+    1px solid var(--border);
+
+
+    transition:.35s;
+
+
+}
+
+
+
+
+.category-card:hover{
+
+
+    transform:
+
+    translateY(-8px);
+
+
+    box-shadow:
+
+    0 20px 40px rgba(15,23,42,.15);
+
+
+}
+
+
+
+
+.category-icon{
+
+
+    font-size:45px;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+.category-card h3{
+
+
+    font-size:22px;
+
+
+    margin-bottom:10px;
+
+
+}
+
+
+
+
+.category-card p{
+
+
+    color:var(--gray);
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+
+.category-button{
+
+
+    display:inline-block;
+
+
+    padding:
+
+    12px 25px;
+
+
+    border-radius:
+
+    12px;
+
+
+    background:
+
+    var(--primary);
+
+
+    color:white;
+
+
+    font-weight:700;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+.category-button:hover{
+
+
+    background:
+
+    var(--primary-dark);
+
+
+}
+
+
+
+
+
+/* ===============================
+   PRODUCT GRID
+================================ */
+
+
+.product-grid{
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(4,1fr);
+
+
+    gap:25px;
+
+
+}
+
+
+
+
+
+.service-card{
+
+
+    background:white;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    padding:25px;
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+    border:
+
+    1px solid var(--border);
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.service-card:hover{
+
+
+    transform:
+
+    translateY(-7px);
+
+
+}
+
+
+
+
+.service-icon{
+
+
+    width:65px;
+
+
+    height:65px;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    background:
+
+    #eff6ff;
+
+
+    border-radius:50%;
+
+
+    font-size:32px;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+/* =====================================================
+   FLASH PAY RAJAPULSA
+   PREMIUM PPOB WEBSITE STYLE
+
+   BAGIAN 2 / 8
+===================================================== */
+
+
+
+/* ===============================
+   PRODUCT CARD DETAIL
+================================ */
+
+
+.service-card h3{
+
+
+    font-size:20px;
+
+    font-weight:750;
+
+    margin-bottom:10px;
+
+    color:var(--secondary);
+
+
+}
+
+
+
+.service-card p{
+
+
+    color:var(--gray);
+
+    font-size:14px;
+
+    min-height:45px;
+
+
+}
+
+
+
+
+.service-card h4{
+
+
+    margin-top:18px;
+
+    font-size:22px;
+
+    color:var(--primary);
+
+
+}
+
+
+
+
+.buy-button{
+
+
+    display:block;
+
+
+    width:100%;
+
+
+    margin-top:20px;
+
+
+    padding:
+
+    13px 20px;
+
+
+    text-align:center;
+
+
+    border-radius:
+
+    12px;
+
+
+    background:
+
+    var(--primary);
+
+
+    color:white;
+
+
+    font-weight:700;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.buy-button:hover{
+
+
+    background:
+
+    var(--primary-dark);
+
+
+    transform:
+
+    translateY(-2px);
+
+
+}
+
+
+
+
+
+
+
+/* ===============================
+   CATEGORY TITLE
+================================ */
+
+
+
+.category-title{
+
+
+    font-size:28px;
+
+
+    font-weight:800;
+
+
+    margin:
+
+    50px 0 25px;
+
+
+    color:
+
+    var(--secondary);
+
+
+    padding-bottom:12px;
+
+
+    border-bottom:
+
+
+    2px solid var(--border);
+
+
+}
+
+
+
+
+
+/* ===============================
+   SEARCH BOX
+================================ */
+
+
+
+.search-container{
+
+
+    max-width:600px;
+
+
+    margin:
+
+    0 auto 40px;
+
+
+}
+
+
+
+.search-box{
+
+
+    width:100%;
+
+
+    padding:
+
+    16px 20px;
+
+
+    border-radius:
+
+    14px;
+
+
+    border:
+
+    1px solid var(--border);
+
+
+    font-size:16px;
+
+
+    outline:none;
+
+
+    background:white;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.search-box:focus{
+
+
+    border-color:
+
+    var(--primary);
+
+
+    box-shadow:
+
+    0 0 0 4px rgba(37,99,235,.1);
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   CHECKOUT PAGE
+================================ */
+
+
+
+.checkout-container{
+
+
+    max-width:900px;
+
+
+    margin:
+
+    60px auto;
+
+
+    padding:
+
+    30px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    1fr 1fr;
+
+
+    gap:30px;
+
+
+}
+
+
+
+
+
+.checkout-card{
+
+
+    background:white;
+
+
+    padding:30px;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+    border:
+
+    1px solid var(--border);
+
+
+}
+
+
+
+.checkout-card h2{
+
+
+    margin-bottom:25px;
+
+
+    font-size:24px;
+
+
+}
+
+
+
+
+
+.form-group{
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+.form-group label{
+
+
+    display:block;
+
+
+    margin-bottom:8px;
+
+
+    font-weight:600;
+
+
+}
+
+
+
+
+
+.form-control{
+
+
+    width:100%;
+
+
+    padding:
+
+    14px 16px;
+
+
+    border-radius:
+
+    12px;
+
+
+    border:
+
+    1px solid var(--border);
+
+
+    font-size:15px;
+
+
+    outline:none;
+
+
+}
+
+
+
+.form-control:focus{
+
+
+    border-color:
+
+    var(--primary);
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   ORDER SUMMARY
+================================ */
+
+
+
+.order-summary{
+
+
+    background:
+
+    #f8fafc;
+
+
+    padding:25px;
+
+
+    border-radius:
+
+    15px;
+
+
+}
+
+
+
+.order-summary div{
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+
+
+.total-price{
+
+
+    font-size:26px;
+
+
+    font-weight:800;
+
+
+    color:
+
+    var(--primary);
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   PAYMENT QRIS
+================================ */
+
+
+
+.payment-container{
+
+
+    max-width:600px;
+
+
+    margin:
+
+    60px auto;
+
+
+    text-align:center;
+
+
+}
+
+
+
+
+.qris-card{
+
+
+    background:white;
+
+
+    padding:35px;
+
+
+    border-radius:
+
+    20px;
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+}
+
+
+
+
+
+.qris-card img{
+
+
+    width:280px;
+
+
+    margin:
+
+    25px auto;
+
+
+}
+
+
+
+
+.payment-status{
+
+
+    display:inline-block;
+
+
+    padding:
+
+    10px 20px;
+
+
+    border-radius:
+
+    50px;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+.status-pending{
+
+
+    background:#fef3c7;
+
+
+    color:#92400e;
+
+
+}
+
+
+
+.status-success{
+
+
+    background:#dcfce7;
+
+
+    color:#166534;
+
+
+}
+
+
+
+.status-failed{
+
+
+    background:#fee2e2;
+
+
+    color:#991b1b;
+
+
+}
+
+
+
+
+
+/* ===============================
+   TIMER PAYMENT
+================================ */
+
+
+
+.payment-timer{
+
+
+    margin-top:20px;
+
+
+    font-size:30px;
+
+
+    font-weight:800;
+
+
+    color:
+
+    var(--danger);
+
+
+}
+
+
+
+
+
+/* ===============================
+   MERCHANT
+================================ */
+
+
+.merchant-container{
+
+
+    max-width:1100px;
+
+
+    margin:
+
+    60px auto;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(3,1fr);
+
+
+    gap:25px;
+
+
+}
+
+
+
+
+
+.merchant-card{
+
+
+    background:white;
+
+
+    padding:30px;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    text-align:center;
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+}
+
+
+
+
+
+.merchant-card i{
+
+
+    font-size:45px;
+
+
+    color:
+
+    var(--primary);
+
+
+}
+
+
+
+
+
+.merchant-card h3{
+
+
+    margin-top:20px;
+
+
+}
+
+
+
+
+
+/* ===============================
+   FOOTER
+================================ */
+
+
+
+footer{
+
+
+    margin-top:80px;
+
+
+    background:
+
+    var(--secondary);
+
+
+    color:white;
+
+
+    text-align:center;
+
+
+    padding:
+
+    40px 20px;
+
+
+}
+
+
+
+
+
+footer p{
+
+
+    opacity:.8;
+
+
+    margin:5px;
+
+
+}
+
+
+
+/* =====================================================
+   FLASH PAY RAJAPULSA
+   PREMIUM PPOB WEBSITE STYLE
+
+   BAGIAN 3 / 8
+===================================================== */
+
+
+
+/* ===============================
+   SERVICE PAGE
+================================ */
+
+
+
+.service-section{
+
+
+    padding:
+
+    70px 60px;
+
+
+}
+
+
+
+.service-container{
+
+
+    max-width:1200px;
+
+
+    margin:auto;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(3,1fr);
+
+
+    gap:30px;
+
+
+}
+
+
+
+.service-box{
+
+
+    background:white;
+
+
+    padding:35px;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+    border:
+
+    1px solid var(--border);
+
+
+    text-align:center;
+
+
+    transition:.35s;
+
+
+}
+
+
+
+.service-box:hover{
+
+
+    transform:
+
+    translateY(-8px);
+
+
+}
+
+
+
+.service-box .icon{
+
+
+    width:80px;
+
+
+    height:80px;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+    margin:
+
+    auto auto 20px;
+
+
+    background:
+
+    #eff6ff;
+
+
+    border-radius:50%;
+
+
+    font-size:40px;
+
+
+}
+
+
+
+.service-box h3{
+
+
+    font-size:22px;
+
+
+    margin-bottom:12px;
+
+
+}
+
+
+
+.service-box p{
+
+
+    color:
+
+    var(--gray);
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   PROMO BANNER
+================================ */
+
+
+
+.promo-banner{
+
+
+    max-width:1200px;
+
+
+    margin:
+
+    40px auto;
+
+
+    padding:
+
+    45px;
+
+
+    border-radius:
+
+    25px;
+
+
+    background:
+
+
+    linear-gradient(
+
+    135deg,
+
+    #2563eb,
+
+    #1e40af
+
+    );
+
+
+    color:white;
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    align-items:center;
+
+
+}
+
+
+
+.promo-banner h2{
+
+
+    font-size:34px;
+
+
+    margin-bottom:10px;
+
+
+}
+
+
+
+.promo-banner p{
+
+
+    opacity:.9;
+
+
+}
+
+
+
+
+
+.promo-button{
+
+
+    background:white;
+
+
+    color:
+
+    var(--primary);
+
+
+    padding:
+
+    14px 30px;
+
+
+    border-radius:
+
+    50px;
+
+
+    font-weight:800;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.promo-button:hover{
+
+
+    transform:
+
+    scale(1.05);
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   BADGE
+================================ */
+
+
+
+.badge{
+
+
+    display:inline-flex;
+
+
+    padding:
+
+    6px 15px;
+
+
+    border-radius:
+
+    50px;
+
+
+    font-size:13px;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+.badge-blue{
+
+
+    background:#dbeafe;
+
+
+    color:#1d4ed8;
+
+
+}
+
+
+
+.badge-green{
+
+
+    background:#dcfce7;
+
+
+    color:#166534;
+
+
+}
+
+
+
+.badge-orange{
+
+
+    background:#ffedd5;
+
+
+    color:#c2410c;
+
+
+}
+
+
+
+.badge-red{
+
+
+    background:#fee2e2;
+
+
+    color:#991b1b;
+
+
+}
+
+
+
+
+
+/* ===============================
+   ALERT MESSAGE
+================================ */
+
+
+
+.alert{
+
+
+    padding:
+
+    18px 25px;
+
+
+    border-radius:
+
+    14px;
+
+
+    margin:
+
+    20px 0;
+
+
+    font-weight:600;
+
+
+}
+
+
+
+.alert-success{
+
+
+    background:#dcfce7;
+
+
+    color:#166534;
+
+
+}
+
+
+
+.alert-warning{
+
+
+    background:#fef3c7;
+
+
+    color:#92400e;
+
+
+}
+
+
+
+.alert-danger{
+
+
+    background:#fee2e2;
+
+
+    color:#991b1b;
+
+
+}
+
+
+
+.alert-info{
+
+
+    background:#dbeafe;
+
+
+    color:#1e40af;
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   TRANSACTION TABLE
+================================ */
+
+
+
+.table-container{
+
+
+    width:100%;
+
+
+    overflow-x:auto;
+
+
+    background:white;
+
+
+    border-radius:
+
+    var(--radius);
+
+
+    box-shadow:
+
+    var(--shadow);
+
+
+}
+
+
+
+
+table{
+
+
+    width:100%;
+
+
+    border-collapse:collapse;
+
+
+}
+
+
+
+
+
+table th{
+
+
+    background:
+
+    #f1f5f9;
+
+
+    padding:
+
+    18px;
+
+
+    text-align:left;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+
+
+table td{
+
+
+    padding:
+
+    16px;
+
+
+    border-bottom:
+
+    1px solid var(--border);
+
+
+}
+
+
+
+
+
+table tr:hover{
+
+
+    background:
+
+    #f8fafc;
+
+
+}
+
+
+
+
+
+/* ===============================
+   EMPTY STATE
+================================ */
+
+
+
+.empty-state{
+
+
+    text-align:center;
+
+
+    padding:
+
+    60px 20px;
+
+
+}
+
+
+
+.empty-state .icon{
+
+
+    font-size:70px;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+.empty-state h3{
+
+
+    font-size:25px;
+
+
+}
+
+
+
+
+
+.empty-state p{
+
+
+    color:
+
+    var(--gray);
+
+
+}
+
+
+
+
+
+/* ===============================
+   LOADING SKELETON
+================================ */
+
+
+
+.skeleton{
+
+
+    background:
+
+    linear-gradient(
+
+    90deg,
+
+    #e2e8f0,
+
+    #f8fafc,
+
+    #e2e8f0
+
+    );
+
+
+    background-size:
+
+    200% 100%;
+
+
+    animation:
+
+    loading 1.5s infinite;
+
+
+    border-radius:
+
+    12px;
+
+
+}
+
+
+
+
+
+@keyframes loading{
+
+
+    0%{
+
+        background-position:
+
+        200% 0;
+
+    }
+
+
+    100%{
+
+        background-position:
+
+        -200% 0;
+
+    }
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   CONTAINER GLOBAL
+================================ */
+
+
+
+.container{
+
+
+    width:100%;
+
+
+    max-width:1200px;
+
+
+    margin:auto;
+
+
+    padding:
+
+    0 20px;
+
+
+}
+
+
+
+
+
+
+/* ===============================
+   BUTTON SYSTEM
+================================ */
+
+
+
+.btn{
+
+
+    display:inline-flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    gap:10px;
+
+
+    padding:
+
+    14px 30px;
+
+
+    border-radius:
+
+    12px;
+
+
+    font-weight:700;
+
+
+    cursor:pointer;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+
+.btn-primary{
+
+
+    background:
+
+    var(--primary);
+
+
+    color:white;
+
+
+}
+
+
+
+.btn-primary:hover{
+
+
+    background:
+
+    var(--primary-dark);
+
+
+}
+
+
+
+
+
+.btn-outline{
+
+
+    border:
+
+    2px solid var(--primary);
+
+
+    color:
+
+    var(--primary);
+
+
+}
+
+
+
+.btn-outline:hover{
+
+
+    background:
+
+    var(--primary);
+
+
+    color:white;
+
+
+}
+
+
+/* =====================================================
+   FLASH PAY RAJAPULSA
+   RESPONSIVE MOBILE & TABLET
+
+   BAGIAN 4 / 8
+===================================================== */
+
+
+
+/* ===============================
+   TABLET
+================================ */
+
+
+@media(max-width:1024px){
+
+
+
+    .navbar{
+
+
+        padding:
+
+        0 30px;
+
+
+    }
+
+
+
+    .navbar nav{
+
+
+        gap:20px;
+
+
+    }
+
+
+
+    .hero h1{
+
+
+        font-size:38px;
+
+
+    }
+
+
+
+    .product-grid{
+
+
+        grid-template-columns:
+
+        repeat(3,1fr);
+
+
+    }
+
+
+
+
+    .category-grid{
+
+
+        grid-template-columns:
+
+        repeat(2,1fr);
+
+
+    }
+
+
+
+    .service-container{
+
+
+        grid-template-columns:
+
+        repeat(2,1fr);
+
+
+    }
+
+
+
+
+    .merchant-container{
+
+
+        grid-template-columns:
+
+        repeat(2,1fr);
+
+
+    }
+
+
+
+
+    .checkout-container{
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+        max-width:700px;
+
+
+    }
+
+
+
+}
+
+
+
+
+
+/* ===============================
+   MOBILE
+================================ */
+
+
+@media(max-width:768px){
+
+
+
+
+
+    body{
+
+
+        overflow-x:hidden;
+
+
+    }
+
+
+
+
+    /* NAVBAR */
+
+
+    .navbar{
+
+
+        height:auto;
+
+
+        min-height:70px;
+
+
+        padding:
+
+        18px 20px;
+
+
+        flex-direction:column;
+
+
+        gap:20px;
+
+
+    }
+
+
+
+
+    .logo{
+
+
+        font-size:22px;
+
+
+    }
+
+
+
+
+    .navbar nav{
+
+
+        width:100%;
+
+
+        display:flex;
+
+
+        flex-wrap:wrap;
+
+
+        justify-content:center;
+
+
+        gap:15px;
+
+
+    }
+
+
+
+
+
+    .navbar nav a{
+
+
+        font-size:14px;
+
+
+    }
+
+
+
+
+
+    /* HERO */
+
+
+    .hero{
+
+
+        min-height:330px;
+
+
+        padding:
+
+        40px 20px;
+
+
+    }
+
+
+
+    .hero h1{
+
+
+        font-size:32px;
+
+
+        line-height:1.2;
+
+
+    }
+
+
+
+
+    .hero p{
+
+
+        font-size:16px;
+
+
+    }
+
+
+
+
+
+    /* SECTION */
+
+
+    .products{
+
+
+        padding:
+
+        40px 20px;
+
+
+    }
+
+
+
+
+
+    .products h2{
+
+
+        font-size:26px;
+
+
+    }
+
+
+
+
+
+
+    /* CATEGORY */
+
+
+    .category-grid{
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+        gap:20px;
+
+
+    }
+
+
+
+
+    .category-card{
+
+
+        padding:25px;
+
+
+    }
+
+
+
+
+
+
+    /* PRODUCT */
+
+
+    .product-grid{
+
+
+        grid-template-columns:
+
+        repeat(2,1fr);
+
+
+        gap:15px;
+
+
+    }
+
+
+
+
+    .service-card{
+
+
+        padding:18px;
+
+
+    }
+
+
+
+
+    .service-icon{
+
+
+        width:55px;
+
+
+        height:55px;
+
+
+        font-size:25px;
+
+
+    }
+
+
+
+
+    .service-card h3{
+
+
+        font-size:16px;
+
+
+    }
+
+
+
+
+    .service-card h4{
+
+
+        font-size:18px;
+
+
+    }
+
+
+
+
+
+    .buy-button{
+
+
+        padding:
+
+        11px;
+
+
+        font-size:14px;
+
+
+    }
+
+
+
+
+
+
+    /* PROMO */
+
+
+    .promo-banner{
+
+
+        margin:
+
+        20px;
+
+
+        padding:30px;
+
+
+        flex-direction:column;
+
+
+        text-align:center;
+
+
+        gap:25px;
+
+
+    }
+
+
+
+
+    .promo-banner h2{
+
+
+        font-size:26px;
+
+
+    }
+
+
+
+
+
+    /* SERVICE */
+
+
+    .service-container{
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+    }
+
+
+
+
+
+    /* MERCHANT */
+
+
+    .merchant-container{
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+        padding:20px;
+
+
+    }
+
+
+
+
+
+    /* CHECKOUT */
+
+
+    .checkout-container{
+
+
+        padding:
+
+        20px;
+
+
+        margin:
+
+        30px auto;
+
+
+    }
+
+
+
+
+    .checkout-card{
+
+
+        padding:
+
+        20px;
+
+
+    }
+
+
+
+
+
+    /* PAYMENT */
+
+
+    .payment-container{
+
+
+        padding:
+
+        20px;
+
+
+        margin:
+
+        30px auto;
+
+
+    }
+
+
+
+
+
+    .qris-card{
+
+
+        padding:
+
+        20px;
+
+
+    }
+
+
+
+
+    .qris-card img{
+
+
+        width:220px;
+
+
+    }
+
+
+
+
+    .payment-timer{
+
+
+        font-size:24px;
+
+
+    }
+
+
+
+
+
+
+    /* TABLE */
+
+
+    table{
+
+
+        min-width:700px;
+
+
+    }
+
+
+
+
+    footer{
+
+
+        padding:
+
+        30px 15px;
+
+
+        font-size:14px;
+
+
+    }
+
+
+
+
+
+}
+
+
+
+
+
+/* ===============================
+   SMALL PHONE
+================================ */
+
+
+
+@media(max-width:480px){
+
+
+
+
+
+    .product-grid{
+
+
+        grid-template-columns:
+
+        1fr;
+
+
+    }
+
+
+
+
+    .hero h1{
+
+
+        font-size:26px;
+
+
+    }
+
+
+
+
+    .category-title{
+
+
+        font-size:22px;
+
+
+    }
+
+
+
+
+    .btn{
+
+
+        width:100%;
+
+
+    }
+
+
+
+
+    .service-card{
+
+
+        border-radius:
+
+        14px;
+
+
+    }
+
+
+
+
+
+}
+
+
+
+
+/* ===============================
+   TOUCH DEVICE IMPROVEMENT
+================================ */
+
+
+
+@media(hover:none){
+
+
+
+    .service-card:hover,
+
+
+    .category-card:hover{
+
+
+        transform:none;
+
+
+    }
+
+
+
+}
+
+
+
+/* ===============================
+   ANIMATION GLOBAL
+================================ */
+
+
+
+.fade-in{
+
+
+    animation:
+
+    fadeIn .5s ease;
+
+
+}
+
+
+
+@keyframes fadeIn{
+
+
+    from{
+
+
+        opacity:0;
+
+
+        transform:
+
+        translateY(15px);
+
+
+    }
+
+
+    to{
+
+
+        opacity:1;
+
+
+        transform:
+
+        translateY(0);
+
+
+    }
+
+
+}
+
+.category-grid{
+
+
+display:grid;
+
+
+grid-template-columns:
+
+repeat(4,1fr);
+
+
+gap:25px;
+
+
+max-width:1200px;
+
+
+margin:auto;
+
+
+}
+
+
+
+.category-card{
+
+
+background:white;
+
+
+padding:30px;
+
+
+border-radius:20px;
+
+
+text-align:center;
+
+
+box-shadow:
+
+var(--shadow);
+
+
+transition:.3s;
+
+
+}
+
+
+
+.category-card:hover{
+
+
+transform:
+
+translateY(-5px);
+
+
+}
+
+
+
+.category-icon{
+
+
+font-size:45px;
+
+
+margin-bottom:15px;
+
+
+}
+
+
+
+.category-button{
+
+
+display:block;
+
+
+margin-top:20px;
+
+
+padding:12px;
+
+
+background:
+
+var(--primary);
+
+
+color:white;
+
+
+border-radius:10px;
+
+
+font-weight:700;
+
+
+}
+
+
+
+
+@media(max-width:768px){
+
+
+.category-grid{
+
+
+grid-template-columns:
+
+repeat(2,1fr);
+
+
+}
+
+
+}
+
+
+
+@media(max-width:480px){
+
+
+.category-grid{
+
+
+grid-template-columns:
+
+1fr;
+
+
+}
+
+
+}
+
+/* ===========================
+ PAYMENT PUBLIC
+=========================== */
+
+
+.payment-container{
+
+
+padding:
+
+50px 20px;
+
+
+display:flex;
+
+
+justify-content:center;
+
+
+}
+
+
+
+.payment-card{
+
+
+background:white;
+
+
+width:100%;
+
+
+max-width:500px;
+
+
+padding:35px;
+
+
+border-radius:25px;
+
+
+box-shadow:
+
+0 10px 30px rgba(0,0,0,.08);
+
+
+text-align:center;
+
+
+}
+
+
+
+.payment-card h2{
+
+
+margin-bottom:30px;
+
+
+}
+
+
+
+.payment-pending{
+
+
+margin-top:30px;
+
+
+padding:20px;
+
+
+background:#fff7ed;
+
+
+border-radius:15px;
+
+
+border-left:5px solid #f59e0b;
+
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+.payment-card{
+
+
+padding:25px;
+
+
+}
+
+
+}
+
+/* =====================================
+   PUBLIC SERVICE PAGE FINAL DESIGN
+===================================== */
+
+
+.service-page{
+
+    width:100%;
+
+    padding:70px 20px;
+
+}
+
+
+
+.service-page h1{
+
+    text-align:center;
+
+    font-size:32px;
+
+    font-weight:800;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.service-page .subtitle{
+
+    text-align:center;
+
+    color:#64748b;
+
+    margin-bottom:45px;
+
+}
+
+
+
+
+.service-grid{
+
+
+    width:100%;
+
+    max-width:850px;
+
+
+    margin:0 auto;
+
+
+    display:grid !important;
+
+
+    grid-template-columns:repeat(3, 1fr) !important;
+
+
+    gap:22px;
+
+
+}
+
+
+
+
+
+.service-card{
+
+
+    background:#e3606033;
+
+
+    width:100%;
+
+
+    min-height:240px;
+
+
+    padding:22px 18px !important;
+
+
+    border-radius:18px;
+
+
+    text-align:center;
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    box-shadow:
+
+
+    0 8px 25px rgba(0,0,0,.08);
+
+
+    border:
+
+
+    1px solid #e5e7eb;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.service-card:hover{
+
+
+    transform:translateY(-5px);
+
+
+    box-shadow:
+
+
+    0 15px 35px rgba(0,0,0,.12);
+
+
+}
+
+
+
+
+
+.service-icon{
+
+
+    width:60px;
+
+
+    height:60px;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    border-radius:50%;
+
+
+    background:#eff6ff;
+
+
+    font-size:32px;
+
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+
+
+.service-card h2{
+
+
+    font-size:19px;
+
+
+    margin-bottom:10px;
+
+
+    color:#0f172a;
+
+
+}
+
+
+
+
+
+.service-card p{
+
+
+    font-size:14px;
+
+
+    line-height:1.5;
+
+
+    color:#64748b;
+
+
+}
+
+
+
+
+
+.service-card a{
+
+
+    margin-top:18px;
+
+
+    padding:10px 24px;
+
+
+    border-radius:10px;
+
+
+    background:#0cb7f0;
+
+
+    color:rgb(255, 255, 255);
+
+
+    font-weight:700;
+
+
+    text-decoration:none;
+
+
+}
+
+
+
+
+
+.service-card a:hover{
+
+
+    background:#1d4ed8;
+
+
+}
+
+
+
+
+
+
+
+/* TABLET */
+
+@media(max-width:900px){
+
+
+.service-grid{
+
+
+    max-width:600px;
+
+
+    grid-template-columns:repeat(2,1fr) !important;
+
+
+}
+
+
+}
+
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+.service-page{
+
+
+    padding:45px 15px;
+
+
+}
+
+
+
+.service-grid{
+
+
+    grid-template-columns:1fr !important;
+
+
+    max-width:350px;
+
+
+}
+
+
+
+.service-card{
+
+
+    min-height:220px;
+
+
+}
+
+
+
+}
+/* ===============================
+   CONTACT PAGE CENTER
+================================ */
+
+.contact-page{
+
+    padding:60px 20px;
+
+}
+
+
+.contact-page h1{
+
+    text-align:center;
+    margin-bottom:15px;
+
+}
+
+
+
+.contact-container{
+
+    max-width:650px;
+
+    margin:auto;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:25px;
+
+}
+
+
+
+.contact-card{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:25px;
+
+    box-shadow:var(--shadow);
+
+    border:1px solid var(--border);
+
+}
+
+
+
+.contact-card h2{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.contact-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+
+.contact-table tr{
+
+    border-bottom:1px solid #e5e7eb;
+
+}
+
+
+
+.contact-table td{
+
+    padding:15px;
+
+}
+
+
+
+.contact-table td:first-child{
+
+    width:35%;
+
+    font-weight:700;
+
+}
+
+
+
+.contact-form input,
+.contact-form textarea{
+
+
+    width:100%;
+
+    padding:14px;
+
+    margin-bottom:15px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    font-size:15px;
+
+}
+
+
+
+.contact-form textarea{
+
+    height:120px;
+
+    resize:none;
+
+}
+
+
+
+.contact-button{
+
+
+    display:block;
+
+    width:180px;
+
+    margin:auto;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    background:var(--primary);
+
+    color:white;
+
+    text-align:center;
+
+    font-weight:700;
+
+}
+
+
+.contact-button:hover{
+
+    opacity:.85;
+
+}/* ===============================
+ CONTACT CENTER STYLE
+================================ */
+
+.contact-page{
+
+padding:60px 20px;
+
+}
+
+
+.contact-page h1{
+
+text-align:center;
+
+}
+
+
+.contact-box{
+
+max-width:600px;
+
+margin:25px auto;
+
+background:white;
+
+padding:30px;
+
+border-radius:18px;
+
+box-shadow:var(--shadow);
+
+border:1px solid var(--border);
+
+}
+
+
+
+.contact-row{
+
+display:flex;
+
+align-items:center;
+
+gap:20px;
+
+padding:18px 0;
+
+border-bottom:1px solid #eee;
+
+}
+
+
+
+.contact-row span{
+
+font-size:30px;
+
+}
+
+
+
+.contact-row p{
+
+margin:5px 0;
+
+color:var(--gray);
+
+}
+
+
+
+.contact-box input,
+.contact-box textarea{
+
+
+width:100%;
+
+padding:14px;
+
+margin:10px 0;
+
+border-radius:10px;
+
+border:1px solid #ddd;
+
+}
+
+
+
+.contact-box textarea{
+
+height:120px;
+
+}
+
+
+
+.contact-box button{
+
+
+width:180px;
+
+display:block;
+
+margin:auto;
+
+padding:12px;
+
+border:none;
+
+border-radius:10px;
+
+background:var(--primary);
+
+color:white;
+
+font-weight:700;
+
+cursor:pointer;
+
+}
+/* =================================
+   PPOB PRODUCT DASHBOARD TABLE
+================================= */
+
+
+.category-page{
+
+    max-width:900px;
+
+    margin:auto;
+
+    padding:50px 20px;
+
+}
+
+
+
+.category-page h1{
+
+    text-align:center;
+
+    font-size:32px;
+
+}
+
+
+
+.category-page > p{
+
+    text-align:center;
+
+    color:#64748b;
+
+    margin-bottom:35px;
+
+}
+
+
+
+
+.provider-table{
+
+
+    background:white;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    margin-bottom:30px;
+
+    box-shadow:
+
+    0 8px 25px rgba(0,0,0,.08);
+
+
+    border:1px solid #e5e7eb;
+
+
+}
+
+
+
+
+
+.provider-title{
+
+
+    background:#0f172a;
+
+    color:white;
+
+    padding:14px 20px;
+
+    font-size:18px;
+
+    font-weight:700;
+
+
+}
+
+
+
+
+
+.product-header{
+
+
+    display:grid;
+
+    grid-template-columns:
+
+    1fr 150px 100px;
+
+
+    background:#f1f5f9;
+
+
+    padding:12px 20px;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+
+.product-row{
+
+
+    display:grid;
+
+    grid-template-columns:
+
+    1fr 150px 100px;
+
+
+    align-items:center;
+
+
+    padding:14px 20px;
+
+
+    border-bottom:
+
+    1px solid #e5e7eb;
+
+
+}
+
+
+
+.product-row:hover{
+
+
+    background:#f8fafc;
+
+
+}
+
+
+
+.product-name{
+
+
+    font-weight:600;
+
+}
+
+
+
+.product-price{
+
+
+    color:#2563eb;
+
+    font-weight:700;
+
+
+}
+
+
+
+
+.small-buy-button{
+
+
+    display:inline-block;
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:7px 18px;
+
+
+    border-radius:8px;
+
+
+    font-size:14px;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+.small-buy-button:hover{
+
+
+    background:#1d4ed8;
+
+
+}
+
+
+
+
+
+@media(max-width:700px){
+
+
+.product-header,
+.product-row{
+
+
+grid-template-columns:
+
+1fr 100px 80px;
+
+
+font-size:14px;
+
+
+}
+
+
+}

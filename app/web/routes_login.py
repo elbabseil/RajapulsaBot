@@ -2,20 +2,11 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-
 from app.web.auth import check_login
-
 from app.database.user_repository import user_repository
-
 from api.services.auth_service import verify_password
 
 
-
-
-
-# =====================================
-# ROUTER
-# =====================================
 
 router = APIRouter(
     tags=[
@@ -25,13 +16,9 @@ router = APIRouter(
 
 
 
-
-
 templates = Jinja2Templates(
     directory="app/web/templates"
 )
-
-
 
 
 
@@ -46,42 +33,25 @@ templates = Jinja2Templates(
     response_class=HTMLResponse
 )
 async def login_page(
-
     request: Request
-
 ):
 
-
-    # =================================
-    # JIKA SUDAH LOGIN
-    # =================================
 
     if check_login(request):
 
         return RedirectResponse(
-
-            url="/admin",
-
+            "/admin",
             status_code=302
-
         )
 
 
 
-
-
     return templates.TemplateResponse(
-
-        name="login.html",
-
-        request=request,
-
-        context={
-
+        "login.html",
+        {
+            "request": request,
             "error": None
-
         }
-
     )
 
 
@@ -89,11 +59,8 @@ async def login_page(
 
 
 
-
-
-
 # =====================================
-# LOGIN ACTION
+# LOGIN PROCESS
 # =====================================
 
 @router.post(
@@ -110,18 +77,49 @@ async def login_process(
 ):
 
 
-    # =================================
-    # CEK USER DATABASE
-    # =================================
+    print("==============================")
+    print("[ADMIN LOGIN TRY]")
+    print("USERNAME :", username)
+    print("==============================")
 
 
-    user = user_repository.get_by_telegram_id(
+
+    # cari user berdasarkan username
+
+    user = user_repository.get_by_username(
         username
-    )
+  )
 
 
 
-    if user and verify_password(
+    if not user:
+
+
+        print("[USER NOT FOUND]")
+
+
+        return templates.TemplateResponse(
+
+            "login.html",
+
+            {
+                "request": request,
+                "error":
+                "Username tidak ditemukan"
+            },
+
+            status_code=401
+
+        )
+
+
+
+
+
+    # cek password
+
+
+    if not verify_password(
 
         password,
 
@@ -130,36 +128,20 @@ async def login_process(
     ):
 
 
-
-        # =============================
-        # CREATE SESSION
-        # =============================
+        print("[PASSWORD WRONG]")
 
 
-        request.session.clear()
+        return templates.TemplateResponse(
 
+            "login.html",
 
-        request.session["admin"] = True
+            {
+                "request": request,
+                "error":
+                "Password salah"
+            },
 
-
-        request.session["username"] = user["username"]
-
-
-
-        print("==============================")
-        print("[ADMIN LOGIN SUCCESS]")
-        print("USER :", username)
-        print("==============================")
-
-
-
-
-
-        return RedirectResponse(
-
-            url="/admin",
-
-            status_code=303
+            status_code=401
 
         )
 
@@ -168,37 +150,35 @@ async def login_process(
 
 
 
+    # ==========================
+    # CREATE SESSION
+    # ==========================
 
 
+    request.session.clear()
 
-    # =================================
-    # LOGIN FAILED
-    # =================================
+
+    request.session["admin"] = True
+
+
+    request.session["username"] = user["username"]
+
 
 
     print("==============================")
-    print("[ADMIN LOGIN FAILED]")
-    print("USER :", username)
+    print("[ADMIN LOGIN SUCCESS]")
+    print("USER :", user["username"])
     print("==============================")
 
 
 
 
 
-    return templates.TemplateResponse(
+    return RedirectResponse(
 
-        name="login.html",
+        "/admin",
 
-        request=request,
-
-        context={
-
-            "error":
-            "Username atau password salah"
-
-        },
-
-        status_code=401
+        status_code=303
 
     )
 
@@ -225,13 +205,9 @@ async def logout(
 
 
     username = request.session.get(
-
         "username",
-
         "-"
-
     )
-
 
 
     request.session.clear()
@@ -245,11 +221,9 @@ async def logout(
 
 
 
-
-
     return RedirectResponse(
 
-        url="/admin/login",
+        "/admin/login",
 
         status_code=302
 

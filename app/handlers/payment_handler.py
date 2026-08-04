@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from app.states.payment import PaymentState
 
 
-from app.services.product_service import get_products
+from app.services.catalog_service import catalog_service
 from app.services.order_service import order_service
 from app.services.xendit_service import xendit
 
@@ -35,9 +35,11 @@ router = Router()
 
 
 
-# =================================================
+
+
+# =====================================================
 # PILIH PRODUK
-# =================================================
+# =====================================================
 
 @router.callback_query(
     F.data.startswith("product:")
@@ -48,27 +50,15 @@ async def buy_product(
 ):
 
 
-    sku = callback.data.replace(
-        "product:",
-        ""
+    parts = callback.data.split(":")
+
+
+    sku = parts[-1]
+
+
+    product = catalog_service.get_product_by_sku(
+        sku
     )
-
-
-    products = get_products()
-
-
-    product = None
-
-
-    for p in products:
-
-        if p.get(
-            "buyer_sku_code"
-        ) == sku:
-
-            product = p
-            break
-
 
 
     if not product:
@@ -90,122 +80,58 @@ async def buy_product(
     )
 
 
-    category = str(
-        product.get(
-            "category",
-            ""
-        )
-    ).lower()
-
-
-
-    product_name = product.get(
-        "product_name",
-        "Produk Digital"
-    )
-
-
-
     await state.update_data(
 
         sku=sku,
 
-        price=price,
-
-        category=category,
-
-        brand=product.get(
-            "brand",
-            ""
+        product_name=product.get(
+            "product_name"
         ),
 
-        product_name=product_name
+        price=price,
+
+        category=product.get(
+            "category"
+        ),
+
+        brand=product.get(
+            "brand"
+        )
 
     )
 
 
 
-
-    target_text = get_target_text(
-        product
-    )
+    target_text = get_target_text(product)
 
 
 
-    # =========================================
-    # PRODUK TANPA TARGET
-    # =========================================
-
-    if not target_text:
+    if target_text:
 
 
-        order = order_service.create_order(
-
-            customer_no="",
-
-            buyer_sku_code=sku,
-
-            telegram_id=callback.from_user.id
-
+        await state.set_state(
+            PaymentState.waiting_target
         )
-
-
-
-        if order.get("status") == "FAILED":
-
-            await callback.message.answer(
-                "❌ Gagal membuat transaksi"
-            )
-
-            return
-
-
-
-        ref_id = order["ref_id"]
-
-
-
-        transaction_repository.create(
-
-            ref_id,
-
-            callback.message.chat.id,
-
-            sku,
-
-            product_name,
-
-            "",
-
-            price
-
-        )
-
 
 
         await callback.message.answer(
 
 f"""
-📦 Produk:
-{product_name}
+📦 PRODUK
+
+{product.get('product_name')}
+
+
+🏷 Provider:
+{product.get('brand','-')}
 
 
 💰 Harga:
 Rp {price:,}
 
 
-🎟 Voucher Digital
-
-
-Transaksi siap.
-
-
-Silakan tekan tombol pembayaran.
-""",
-
-            reply_markup=bayar_keyboard(
-                ref_id
-            )
+{target_text}
+"""
 
         )
 
@@ -216,36 +142,15 @@ Silakan tekan tombol pembayaran.
 
 
 
+    await create_transaction(
 
+        callback,
 
-    # =========================================
-    # PRODUK BUTUH TARGET
-    # =========================================
+        sku,
 
+        "",
 
-    await state.set_state(
-        PaymentState.waiting_target
-    )
-
-
-
-    await callback.message.answer(
-
-f"""
-📦 Produk:
-{product_name}
-
-
-🏷 Operator:
-{product.get("brand","")}
-
-
-💰 Harga:
-Rp {price:,}
-
-
-{target_text}
-"""
+        product
 
     )
 
@@ -257,21 +162,31 @@ Rp {price:,}
 
 
 
-
-# =================================================
+# =====================================================
 # INPUT TARGET
-# =================================================
+# =====================================================
 
 @router.message(
     PaymentState.waiting_target
 )
 async def process_target(
-
     message: types.Message,
-
     state: FSMContext
-
 ):
+
+
+    target = message.text.strip()
+
+
+
+    if not target.isdigit():
+
+        await message.answer(
+            "❌ Nomor harus berupa angka"
+        )
+
+        return
+
 
 
     data = await state.get_data()
@@ -283,38 +198,54 @@ async def process_target(
     )
 
 
-    price = data.get(
-        "price"
+
+    product = catalog_service.get_product_by_sku(
+        sku
     )
 
 
-    product_name = data.get(
-        "product_name"
-    )
-
-
-    category = data.get(
-        "category",
-        ""
-    )
-
-
-
-    target = message.text.strip()
-
-
-
-
-    if not target.isdigit():
+    if not product:
 
         await message.answer(
-            "❌ Input harus berupa angka."
+            "❌ Produk tidak ditemukan"
         )
+
+        await state.clear()
 
         return
 
 
 
+    await create_transaction(
+
+        message,
+
+        sku,
+
+        target,
+
+        product
+
+    )
+
+
+
+    await state.clear()
+
+
+
+
+
+# =====================================================
+# CREATE TRANSACTION
+# =====================================================
+
+async def create_transaction(
+    event,
+    sku,
+    target,
+    product
+):
 
 
     order = order_service.create_order(
@@ -323,7 +254,7 @@ async def process_target(
 
         buyer_sku_code=sku,
 
-        telegram_id=message.from_user.id
+        telegram_id=event.from_user.id
 
     )
 
@@ -331,12 +262,9 @@ async def process_target(
 
     if order.get("status") == "FAILED":
 
-
-        await message.answer(
+        await event.message.answer(
             "❌ Gagal membuat transaksi"
         )
-
-        await state.clear()
 
         return
 
@@ -347,16 +275,26 @@ async def process_target(
 
 
 
+    price = int(
+        product.get(
+            "price",
+            0
+        )
+    )
+
+
 
     transaction_repository.create(
 
         ref_id,
 
-        message.chat.id,
+        event.message.chat.id,
 
         sku,
 
-        product_name,
+        product.get(
+            "product_name"
+        ),
 
         target,
 
@@ -366,15 +304,17 @@ async def process_target(
 
 
 
-
-    await message.answer(
+    await event.message.answer(
 
 f"""
+✅ TRANSAKSI DIBUAT
+
+
 📦 Produk:
-{product_name}
+{product.get('product_name')}
 
 
-🎯 Tujuan:
+📱 Tujuan:
 {target}
 
 
@@ -382,10 +322,11 @@ f"""
 Rp {price:,}
 
 
-✅ Transaksi dibuat.
+🆔 ID:
+{ref_id}
 
 
-Silakan tekan tombol pembayaran.
+Silakan tekan BAYAR SEKARANG.
 """,
 
         reply_markup=bayar_keyboard(
@@ -395,25 +336,21 @@ Silakan tekan tombol pembayaran.
     )
 
 
-    await state.clear()
 
 
 
 
 
 
-
-# =================================================
-# BUTTON BAYAR SEKARANG
-# =================================================
+# =====================================================
+# BAYAR SEKARANG
+# =====================================================
 
 @router.callback_query(
     F.data.startswith("bayar:")
 )
 async def create_qris(
-
     callback: types.CallbackQuery
-
 ):
 
 
@@ -457,14 +394,22 @@ async def create_qris(
 
 
 
+    print("==============================")
+    print("XENDIT RESPONSE")
+    print(qris)
+    print("==============================")
+
+
+
     if not qris:
 
 
         await callback.message.answer(
-            "❌ Gagal membuat QRIS"
+            "❌ Xendit gagal membuat QRIS"
         )
 
         return
+
 
 
 
@@ -481,6 +426,10 @@ async def create_qris(
 
         qris.get("qr")
 
+        or
+
+        qris.get("qr_data")
+
     )
 
 
@@ -489,7 +438,15 @@ async def create_qris(
 
 
         await callback.message.answer(
-            "❌ QRIS kosong"
+
+f"""
+❌ QRIS kosong
+
+Response Xendit:
+
+{qris}
+"""
+
         )
 
         return
@@ -527,6 +484,7 @@ async def create_qris(
 
 
 
+
     qr_url = (
 
         "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
@@ -544,9 +502,7 @@ async def create_qris(
 
         qr_url,
 
-
         caption=f"""
-
 ⚡ QRIS PEMBAYARAN
 
 
@@ -566,6 +522,7 @@ Silakan lakukan pembayaran.
 """
 
     )
+
 
 
     await callback.answer()

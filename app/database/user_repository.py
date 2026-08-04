@@ -5,6 +5,7 @@ from app.database.connection import get_connection
 class UserRepository:
 
 
+
     # =================================
     # CREATE TABLE
     # =================================
@@ -21,13 +22,17 @@ class UserRepository:
 
             telegram_id TEXT UNIQUE,
 
-            username TEXT,
+            username TEXT UNIQUE,
 
             full_name TEXT,
+
+            password_hash TEXT,
 
             balance INTEGER DEFAULT 0,
 
             status TEXT DEFAULT 'ACTIVE',
+
+            password_hash TEXT,
 
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
@@ -60,7 +65,39 @@ class UserRepository:
 
         conn.close()
 
+    # =================================
+    # GET USER BY USERNAME
+    # =================================
 
+    def get_by_username(
+        self,
+        username
+    ):
+
+        conn = get_connection()
+
+
+        cursor = conn.execute("""
+
+        SELECT *
+
+        FROM users
+
+        WHERE username=?
+
+        """,
+        (
+            username,
+        ))
+
+
+        row = cursor.fetchone()
+
+
+        conn.close()
+
+
+        return dict(row) if row else None
 
 
 
@@ -103,6 +140,7 @@ class UserRepository:
         conn.close()
 
 
+
         return self.get_by_telegram_id(
             telegram_id
         )
@@ -112,8 +150,59 @@ class UserRepository:
 
 
 
+
     # =================================
-    # GET USER
+    # CREATE ADMIN
+    # =================================
+
+    def create_admin(
+        self,
+        telegram_id,
+        username,
+        full_name,
+        password_hash
+    ):
+
+
+        conn = get_connection()
+
+
+        conn.execute("""
+
+        INSERT INTO users
+
+        (
+            telegram_id,
+            username,
+            full_name,
+            password_hash,
+            role
+        )
+
+        VALUES (?,?,?,?,?)
+
+        """,
+        (
+            str(telegram_id),
+            username,
+            full_name,
+            password_hash,
+            "ADMIN"
+        ))
+
+
+        conn.commit()
+
+        conn.close()
+
+
+
+
+
+
+
+    # =================================
+    # GET BY TELEGRAM ID
     # =================================
 
     def get_by_telegram_id(
@@ -125,7 +214,7 @@ class UserRepository:
         conn = get_connection()
 
 
-        cursor = conn.execute("""
+        row = conn.execute("""
 
         SELECT *
 
@@ -136,16 +225,52 @@ class UserRepository:
         """,
         (
             str(telegram_id),
-        ))
-
-
-        row = cursor.fetchone()
+        )).fetchone()
 
 
         conn.close()
 
 
         return dict(row) if row else None
+
+
+
+
+
+
+    # =================================
+    # GET BY USERNAME
+    # UNTUK LOGIN ADMIN
+    # =================================
+
+    def get_by_username(
+        self,
+        username
+    ):
+
+
+        conn = get_connection()
+
+
+        row = conn.execute("""
+
+        SELECT *
+
+        FROM users
+
+        WHERE username=?
+
+        """,
+        (
+            username,
+        )).fetchone()
+
+
+        conn.close()
+
+
+        return dict(row) if row else None
+
 
 
 
@@ -161,7 +286,7 @@ class UserRepository:
         conn = get_connection()
 
 
-        cursor = conn.execute("""
+        rows = conn.execute("""
 
         SELECT *
 
@@ -169,22 +294,17 @@ class UserRepository:
 
         ORDER BY id DESC
 
-        """)
-
-
-        data = [
-
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
+        """).fetchall()
 
 
         conn.close()
 
 
-        return data
+        return [
+            dict(row)
+            for row in rows
+        ]
+
 
 
 
@@ -192,8 +312,7 @@ class UserRepository:
 
 
     # =================================
-    # DASHBOARD
-    # TOTAL USER
+    # COUNT USER
     # =================================
 
     def count_users(self):
@@ -221,9 +340,9 @@ class UserRepository:
 
 
 
+
     # =================================
-    # DASHBOARD
-    # TOTAL SALDO USER
+    # TOTAL BALANCE
     # =================================
 
     def total_balance(self):
@@ -250,117 +369,35 @@ class UserRepository:
 
 
 
+
+
     # =================================
-    # USER TERBARU DASHBOARD
+    # UPDATE PASSWORD
     # =================================
 
-    def get_latest_users(
+    def update_password(
         self,
-        limit=10
+        username,
+        password_hash
     ):
 
 
         conn = get_connection()
-
-
-        cursor = conn.execute("""
-
-        SELECT *
-
-        FROM users
-
-        ORDER BY id DESC
-
-        LIMIT ?
-
-        """,
-        (
-            limit,
-        ))
-
-
-        data = [
-
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
-
-
-        conn.close()
-
-
-        return data
-
-
-
-
-
-    # =================================
-    # TAMBAH SALDO
-    # =================================
-
-    def add_balance(
-        self,
-        telegram_id,
-        amount,
-        description="Topup"
-    ):
-
-
-        user = self.get_by_telegram_id(
-            telegram_id
-        )
-
-
-        if not user:
-
-            return None
-
-
-
-        conn = get_connection()
-
 
 
         conn.execute("""
 
         UPDATE users
 
-        SET balance = balance + ?
+        SET password_hash=?
 
-        WHERE telegram_id=?
-
-        """,
-        (
-            amount,
-            str(telegram_id)
-        ))
-
-
-
-        conn.execute("""
-
-        INSERT INTO balance_mutations
-
-        (
-            user_id,
-            amount,
-            type,
-            description
-        )
-
-        VALUES (?,?,?,?)
+        WHERE username=?
 
         """,
         (
-            user["id"],
-            amount,
-            "CREDIT",
-            description
+            password_hash,
+            username
         ))
-
 
 
         conn.commit()
@@ -369,169 +406,12 @@ class UserRepository:
 
 
 
-        return self.get_by_telegram_id(
-            telegram_id
-        )
-
-
 
 
 
 
     # =================================
-    # KURANGI SALDO
-    # =================================
-
-    def subtract_balance(
-        self,
-        telegram_id,
-        amount,
-        description="Pembelian"
-    ):
-
-
-        user = self.get_by_telegram_id(
-            telegram_id
-        )
-
-
-        if not user:
-
-            return None
-
-
-
-        if user["balance"] < amount:
-
-            return {
-
-                "success":False,
-
-                "message":"Saldo tidak cukup"
-
-            }
-
-
-
-        conn = get_connection()
-
-
-
-        conn.execute("""
-
-        UPDATE users
-
-        SET balance = balance - ?
-
-        WHERE telegram_id=?
-
-        """,
-        (
-            amount,
-            str(telegram_id)
-        ))
-
-
-
-        conn.execute("""
-
-        INSERT INTO balance_mutations
-
-        (
-            user_id,
-            amount,
-            type,
-            description
-        )
-
-        VALUES (?,?,?,?)
-
-        """,
-        (
-            user["id"],
-            -amount,
-            "DEBIT",
-            description
-        ))
-
-
-
-        conn.commit()
-
-        conn.close()
-
-
-
-        return {
-
-            "success":True,
-
-            "user":
-            self.get_by_telegram_id(
-                telegram_id
-            )
-
-        }
-
-
-
-
-
-    # =================================
-    # HISTORI SALDO
-    # =================================
-
-    def get_balance_mutations(
-        self,
-        user_id,
-        limit=20
-    ):
-
-
-        conn = get_connection()
-
-
-        cursor = conn.execute("""
-
-        SELECT *
-
-        FROM balance_mutations
-
-        WHERE user_id=?
-
-        ORDER BY id DESC
-
-        LIMIT ?
-
-        """,
-        (
-            user_id,
-            limit
-        ))
-
-
-
-        data = [
-
-            dict(row)
-
-            for row in cursor.fetchall()
-
-        ]
-
-
-
-        conn.close()
-
-
-        return data
-
-
-
-
-
-    # =================================
-    # UPDATE STATUS USER
+    # UPDATE STATUS
     # =================================
 
     def update_status(
@@ -567,6 +447,7 @@ class UserRepository:
 
 
 
+
     # =================================
     # DELETE USER
     # =================================
@@ -596,7 +477,33 @@ class UserRepository:
 
         conn.close()
 
+    # =================================
+    # GET USER BY USERNAME
+    # =================================
 
+    def get_by_username(
+        self,
+        username
+    ):
+
+        conn = get_connection()
+
+        cursor = conn.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE username=?
+            """,
+            (
+                username,
+            )
+        )
+
+        row = cursor.fetchone()
+
+        conn.close()
+
+        return dict(row) if row else None
 
 
 

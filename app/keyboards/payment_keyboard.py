@@ -9,13 +9,19 @@ def bayar_keyboard(
     builder = InlineKeyboardBuilder()
 
 
+
     builder.button(
+
         text="💳 BAYAR SEKARANG",
+
         callback_data=f"bayar:{trx_id}"
+
     )
 
 
+
     builder.adjust(1)
+
 
 
     return builder.as_markup()

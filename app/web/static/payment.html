@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+Pembayaran | FlashPay RajaPulsa
+</title>
+
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+
+<div class="logo">
+
+FlashPay RajaPulsa
+
+</div>
+
+
+</header>
+
+
+
+
+
+<section class="checkout-page">
+
+
+<h1>
+Status Pembayaran
+</h1>
+
+
+
+<div id="payment-box">
+
+Memuat transaksi...
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+<footer>
+
+© 2026 FlashPay RajaPulsa
+
+</footer>
+
+
+
+
+
+
+<script>
+
+
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+
+
+const trx_id =
+params.get(
+"trx_id"
+);
+
+
+
+
+
+
+
+async function checkStatus(){
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+"/public/order/status/"
++
+trx_id
+
+);
+
+
+
+
+
+const data =
+await response.json();
+
+
+
+
+
+
+if(
+data.status !== "SUCCESS"
+){
+
+throw new Error(
+"Transaksi tidak ditemukan"
+);
+
+}
+
+
+
+
+
+
+const trx =
+data.transaction;
+
+
+
+
+
+
+document.getElementById(
+"payment-box"
+).innerHTML =
+
+
+
+`
+
+<div class="product-card">
+
+
+<h2>
+
+${trx.product_name}
+
+</h2>
+
+
+
+<p>
+
+ID:
+
+${trx.trx_id}
+
+</p>
+
+
+
+<p>
+
+Nomor:
+
+${trx.customer_no}
+
+</p>
+
+
+
+<h3>
+
+Rp ${Number(trx.price).toLocaleString("id-ID")}
+
+</h3>
+
+
+
+
+<hr>
+
+
+<p>
+
+Status Pembayaran:
+
+<strong>
+
+${trx.payment_status}
+
+</strong>
+
+
+</p>
+
+
+
+<p>
+
+Status Transaksi:
+
+<strong>
+
+${trx.transaction_status}
+
+</strong>
+
+
+</p>
+
+
+
+</div>
+
+`;
+
+
+
+
+}
+
+
+catch(error){
+
+
+document.getElementById(
+"payment-box"
+).innerHTML =
+
+
+`
+
+<div class="error-box">
+
+Transaksi tidak ditemukan
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+}
+
+
+
+checkStatus();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
